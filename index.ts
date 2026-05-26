@@ -211,7 +211,7 @@ class TrainingCategoryEditHandler extends Handler {
         const cursor = await TrainingCategoryModel.getMulti(domainId);
         const ddocs = (await cursor.toArray()).toSorted((a, b) => a.category.localeCompare(b.category));
         for (const ddoc of ddocs) {
-            if (ddoc.trainingIds && ddoc.trainingIds.includes(trainingId)) {
+            if (ddoc.trainingIds?.some(tid => tid.equals(trainingId))) {
                 await TrainingCategoryModel.dec(domainId, ddoc.category, trainingId);
             }
         }
