@@ -7,6 +7,9 @@
         <div class="section">
             <div class="section__header">
                 <h1 class="section__title">{{ _('Create Category') }}</h1>
+                <blockquote class="note" style="line-height: 1.4rem;">
+                <p>{{ _('Category ID must be unique, it is recommended to use a valid identifier. The training homepage will display categories in dictionary order based on their IDs.') }}</p>
+                </blockquote>
             </div>
             <div class="section__body">
                 <form method="post">
@@ -38,6 +41,9 @@
         <div class="section">
             <div class="section__header">
                 <h1 class="section__title">{{ _('Distribute Training Plans') }}</h1>
+                <blockquote class="note" style="line-height: 1.4rem;">
+                <p>{{ _('Set category tags for training problem sets. To change the category, just recategorize.') }}</p>
+                </blockquote>
             </div>
             <div class="section__body">
                 <form method="post">
@@ -87,24 +93,43 @@
         <div class="medium-6 columns">
         <div class="section">
             <div class="section__header">
-                <h1 class="section__title">{{ _('Delete Category') }}</h1>
-                <blockquote class="note">
-                <p>{{ _('Deleting a category will unclassify the training lists within it.') }}</p>
+                <h1 class="section__title">{{ _('Update Category') }}</h1>
+                <blockquote class="note" style="line-height: 1.4rem;">
+                <p>{{ _('You can update the category ID or display name, or both.') }}</p>
                 </blockquote>
             </div>
             <div class="section__body">
                 <form method="post">
+                    <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">类别</label>
+                    <div class="control">
+                        <select class="select" name="cid" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
+                            <option value=""{% if not cid %} selected{% endif %}>{{ _('All') }}</option>
+                            {%- for d in ddocs -%}
+                                <option value="{{ d._id }}"{% if cid == d._id %} selected {% endif %}>{{ d.displayName }}</option>
+                            {%- endfor -%}
+                            {%- if not ddocs|length -%}
+                                <option disabled>{{ _('No category available') }}</option>
+                            {%- endif -%}
+                        </select>
+                    </div>
                     {{ form.form_text({
                         type:'text',
-                        label:'类别 ID',
+                        label:'类别 ID (唯一、字典序)',
                         columns:10,
                         name:'category',
                         required:true
                         }) }}
+                    {{ form.form_text({
+                        type:'text',
+                        label:'类别展示名',
+                        columns:10,
+                        name:'displayName',
+                        required:true
+                        }) }}
                     <div class="row">
                         <div class="columns">
-                            <button name="operation" value="{{ 'delete' }}" data-default-submit type="submit" class="rounded primary button">
-                                {{ _('Delete') }}
+                            <button name="operation" value="update" data-default-submit type="submit" class="rounded primary button">
+                                {{ _('Update') }}
                             </button>
                         </div>
                     </div>
@@ -114,36 +139,34 @@
         <div class="medium-6 columns">
         <div class="section">
             <div class="section__header">
-                <h1 class="section__title">{{ _('All Category') }}</h1>
-                <blockquote class="note">
-                <p>{{ _('To update the category ID or display name, please delete the original category and add it again.') }}</p>
+                <h1 class="section__title">{{ _('Delete Category') }}</h1>
+                <blockquote class="note" style="line-height: 1.4rem;">
+                <p>{{ _('Deleting a category will unclassify the training lists within it.') }}</p>
                 </blockquote>
             </div>
             <div class="section__body">
-                <div class="contest-problems" style="display: flex !important; 
-                                             flex-direction: row !important; 
-                                             flex-wrap: wrap !important; 
-                                             gap: 10px !important; 
-                                             align-items: center !important; 
-                                             justify-content: flex-start !important; 
-                                             width: 100% !important;">
-                {% for d in ddocs -%}
-                <a class="problem__tag-item interactive"
-                   href="{{ url('training_category', category=d.category)}}"
-                   style="display: inline-flex !important; 
-                          align-items: center !important; 
-                          justify-content: center !important; 
-                          width: auto !important; 
-                          min-width: 0 !important; 
-                          height: auto !important; 
-                          padding: 6px 16px !important; 
-                          text-decoration: none !important; 
-                          white-space: nowrap !important;"
-                   >
-                {{ d.displayName }} ({{ d.category }})
-                </a>
-                {%- endfor %}
-            </div></div>
+                <form method="post">
+                    <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">类别</label>
+                    <div class="control">
+                        <select class="select" name="category" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
+                            <option value=""{% if not category %} selected{% endif %}>{{ _('All') }}</option>
+                            {%- for d in ddocs -%}
+                                <option value="{{ d.category }}"{% if category == d.category %} selected {% endif %}>{{ d.displayName }}</option>
+                            {%- endfor -%}
+                            {%- if not ddocs|length -%}
+                                <option disabled>{{ _('No category available') }}</option>
+                            {%- endif -%}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="columns">
+                            <button name="operation" value="delete" data-default-submit type="submit" class="rounded primary button">
+                                {{ _('Delete') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div></div>
     </div>
     </div>
