@@ -1,0 +1,168 @@
+{% extends "layout/basic.html" %}
+{% block content %}
+<div class="row">
+  <div class="medium-9 columns">
+    <div class="section">
+      <div class="section__header">
+        <h1 class="section__title">{{ _('Training Plans Category') }}</h1>
+        <blockquote class="note">
+          <p>{{ _('Click the button below to view training plans of specific category.') }}</p>
+        </blockquote>
+      </div>
+      <div class="section__body">
+        <div class="contest-problems" style="display: flex !important; 
+                                             flex-direction: row !important; 
+                                             flex-wrap: wrap !important; 
+                                             gap: 10px !important; 
+                                             align-items: center !important; 
+                                             justify-content: flex-start !important; 
+                                             width: 100% !important;">
+          <a class="problem__tag-item interactive {% if not category %} active{% endif %}"
+              href="{{ url('training_main')}}"
+              style="display: inline-flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important; 
+                    width: auto !important; 
+                    min-width: 0 !important; 
+                    height: auto !important; 
+                    padding: 6px 16px !important; 
+                    text-decoration: none !important; 
+                    white-space: nowrap !important;"
+              >{{ _('All') }}
+            </a>
+          {% for d in ddocs -%}
+            <a class="problem__tag-item interactive {% if category === d.category %} active{% endif %}"
+              href="{{ url('training_category', category=d.category)}}"
+              style="display: inline-flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important; 
+                    width: auto !important; 
+                    min-width: 0 !important; 
+                    height: auto !important; 
+                    padding: 6px 16px !important; 
+                    text-decoration: none !important; 
+                    white-space: nowrap !important;"
+              >{{ d.displayName }}
+            </a>
+          {%- endfor %}
+        </div>
+      </div>
+    </div>
+    {% if not tdocs.length %}
+    <div class="section">
+      {{ nothing.render('Sorry, there are no training plans.') }}
+    </div>
+    {% else %}
+    <div class="row" style="display: flex;
+                            flex-wrap: wrap;">
+      {%- for tdoc in tdocs -%}
+        <div class="medium-4 columns">
+        <div class="section">
+          <div class="media__left middle">
+            <div class="training__participants numbox">
+              <div class="numbox__num large">{{ tdoc.attend|default(0) }}</div>
+              <div class="numbox__text">{{ _('Enrolled') }}</div>
+            </div>
+          </div>
+          <div class="media__body middle">
+            <h1 class="training__title" style="gap: 10px !important; 
+                                             padding: 10px 10px 0px 0px !important; 
+                                             align-items: center !important;
+                                             width: 100% !important;">
+              <a href="{{ url('training_detail', tid=tdoc.docId) }}" 
+                      data-emoji-enabled 
+                      style="display:-webkit-box;
+                      -webkit-box-orient:vertical;
+                      -webkit-line-clamp:2;
+                      overflow:hidden;
+                      text-overflow:ellipsis;
+                      line-height:1.4em;
+                      height:2.8em; /* 固定两行高度 */
+                      min-height: 2.8em;  /* 防止被覆盖 */
+                      word-break:break-word;">{{ tdoc.title }}</a></h1>
+            <ul class="supplementary list training__progress" 
+              style="display: inline-flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important; 
+                    width: auto !important; 
+                    min-width: 0 !important; 
+                    height: auto !important; 
+                    padding: 0px 0px 6px 0px !important; 
+                    text-decoration: none !important; 
+                    white-space: nowrap !important;"><li>
+              <span class="icon icon-flag text-blue"></span> {{ _('{0} sections').format(tdoc['dag']|length) }}, {{ _('{0} problems').format(model.training.getPids(tdoc.dag)|length) }}
+            </li></ul>
+            <ul class="supplementary list training__progress" 
+              style="display: inline-flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important; 
+                    width: auto !important; 
+                    min-width: 0 !important; 
+                    height: auto !important; 
+                    padding: 0px 0px 6px 0px !important; 
+                    text-decoration: none !important; 
+                    white-space: nowrap !important;"><li>
+              {% if tsdict[tdoc.docId]['enroll'] %}
+                {% if not tsdict[tdoc.docId]['done'] %}
+                  <span class="icon training-status--icon progress"></span>
+                  <span class="training-status--text progress">{{ _('Completed') }} {{ tsdict[tdoc.docId]['donePids']|length }} / {{ model.training.getPids(tdoc.dag)|length }}</span>
+                {% else %}
+                  <span class="icon training-status--icon done"></span>
+                  <span class="training-status--text done">{{ _('Completed') }} {{ tsdict[tdoc.docId]['donePids']|length }} / {{ model.training.getPids(tdoc.dag)|length }}</span>
+                {% endif %}
+              {% elif handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
+                <span class="icon training-status--icon outside"></span> <span class="training-status--text outside">{{ _('Not Enrolled') }}</span>
+              {% endif %}
+            </li></ul>
+          </div>
+        </div></div>
+      {%- endfor -%}
+    </div>
+    {% endif %}
+  </div>
+  <div class="large-3 columns">
+    {% if handler.user.hasPerm(perm.PERM_CREATE_TRAINING) %}
+      <div class="section side">
+        <ol class="menu">
+          <li class="menu__item">
+            <a href="{{ url('training_create') }}" class="menu__link"><span class="icon icon-add"></span> {{ _('Create Training Plan') }}</a>
+          </li>
+          <li class="menu__item">
+            <a href="{{ url('training_category_edit') }}" class="menu__link"><span class="icon icon-edit"></span> {{ _('Manage Training Category') }}</a>
+          </li>
+        </ol>
+        <div class="section__body">
+          <div class="typo supplementary">
+            <p>{{ _('You can create your own training plans and share them with others.') }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    {% if handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
+      <div class="section side">
+        <div class="section__header">
+          <h1 class="section__title">{{ _('Enrolled') }}</h1>
+        </div>
+        <div class="section__body">
+          <ol class="my secondary training__list">
+            {%- for tid, tsdoc in tsdict -%}
+              {% if tsdoc['enroll'] %}
+                {% set progress = (100 * (tsdoc['donePids']|length) / (model.training.getPids(tdict[tsdoc['docId']].dag)|length))|round|int %}
+                <li class="training__item"><div class="media">
+                  <div class="media__left">
+                    <span class="icon training-status--icon {% if tsdoc['done'] %}done{% else %}progress{% endif %}"></span>
+                  </div>
+                  <div class="media__body">
+                    <h1 class="training__title"><a href="{{ url('training_detail', tid=tsdoc.docId) }}" data-emoji-enabled>{{ tdict[tsdoc['docId']]['title'] }}</a></h1>
+                    <div class="supplementary training__progress"><div class="training__progress-bar"><div class="training__progress-track" style="width:{{ progress }}%;"></div></div> {{ _('Complete') }} {{ tsdoc['donePids']|length }} / {{model.training.getPids(tdict[tsdoc['docId']].dag)|length }}</div>
+                  </div>
+                </div></li>
+              {% endif %}
+            {%- endfor -%}
+          </ol>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "前端个性化",
+  "main": "index.ts",
+  "author": "Clancy",
+  "license": "MIT"
+}

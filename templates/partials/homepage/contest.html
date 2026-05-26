@@ -1,0 +1,115 @@
+{% set tdocs = payload[0] %}
+{% set tsdict = payload[1] %}
+{% if tdocs.length %}
+  <div class="section page--contest_main">
+    <div class="section__header" style="padding-bottom: 10px !important;">
+      <h1 class="section__title">{{ _('Contest') }}</h1>
+    </div>
+    <div class="row" style="display: flex;
+                            flex-wrap: wrap;">
+      {%- for tdoc in tdocs -%}
+        <div class="medium-6 columns contest__card contest-type--{{ tdoc.rule }} {% if model.contest.isOngoing(tdoc, tsdoc) %}{{ 'live' }}{% elif model.contest.isUpcoming(tdoc) %}{{ 'ready' }}{% endif %}" style="padding: 0px 15px !important;">
+          <div class="section" style="margin: 5px;
+                      vertical-align: top;
+                      box-shadow: none !important;
+                      border: 2px solid transparent;">
+            <div class="media__left medium">
+              <div class="contest__date numbox">
+                <div class="numbox__num large">{{ datetimeSpan(tdoc['beginAt'], false, 'D')|safe }}</div>
+                <div class="numbox__text">{{ datetimeSpan(tdoc['beginAt'], false, 'YYYY-M')|safe }}</div>
+              </div>
+            </div>
+            <div class="media__body medium">
+              <h1 class="contest__title" style="gap: 10px !important; 
+                                             padding: 10px 10px 0px 0px !important; 
+                                             align-items: center !important;
+                                             width: 100% !important;">
+                <a href="{{ url('contest_detail', tid=tdoc.docId) }}" data-emoji-enabled 
+                      style="display:-webkit-box;
+                      -webkit-box-orient:vertical;
+                      -webkit-line-clamp:2;
+                      overflow:hidden;
+                      text-overflow:ellipsis;
+                      line-height:1.4em;
+                      height:2.8em; /* 固定两行高度 */
+                      min-height: 2.8em;  /* 防止被覆盖 */
+                      word-break:break-word;">{{ tdoc.title }}</a></h1>
+              <ul class="supplementary list" style="display: inline-flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important; 
+                    width: auto !important; 
+                    min-width: 0 !important; 
+                    height: auto !important; 
+                    padding: 0px 0px 6px 0px !important; 
+                    text-decoration: none !important; 
+                    white-space: nowrap !important;">
+                <li>
+                  <a href="{{ url('contest_main', query={rule:tdoc.rule}) }}" class="contest-type-tag"><span class="icon icon-award"></span>{{ _(model.contest.RULES[tdoc.rule].TEXT) }}</a>
+                </li>
+                {% if tdoc.rated %}
+                  <li class="contest-tag-rated"><span class="icon icon-star"></span>Rated</li>
+                {% endif %}
+                <li>
+                  <span class="icon icon-schedule--fill text-blue"></span> {{ contest.render_duration(tdoc) }} {{ _('hour(s)') }}
+                </li>
+                <li>
+                  <span class="icon icon-user--multiple"></span> {{ tdoc['attend']|default(0) }}
+                </li>
+              </ul>
+              <ul class="supplementary list training__progress" 
+              style="display: inline-flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important; 
+                    width: auto !important; 
+                    min-width: 0 !important; 
+                    height: auto !important; 
+                    padding: 0px 0px 6px 0px !important; 
+                    text-decoration: none !important; 
+                    white-space: nowrap !important;"><li>
+                {% if model.contest.isOngoing(tdoc, tsdoc) %}
+                  <span  style="border-radius: 12px;
+                      padding: 0px 10px;
+                      color: #ffffff;
+                      background-color: #ef6c8f !important;">{{ _('Live') }}</span>
+                {% elif model.contest.isUpcoming(tdoc) %}
+                  <span  style="border-radius: 12px;
+                      padding: 0px 10px;
+                      color: #ffffff;
+                      background-color: #4aa3df !important;">{{ _('Ready') }}</span>
+                {% else %}
+                  <span  style="border-radius: 12px;
+                      padding: 0px 10px;
+                      color: #ffffff;
+                      background-color: #c9e7c9 !important;">{{ _('Done') }}</span>
+                {% endif %}
+                {% if tsdict[tdoc.docId]['attend'] == 1 %}
+                  <span class="icon icon-check"></span>
+                  <span class="contest__info-attended">{{ _('Attended') }}</span>
+                {% elif handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
+                  <span class="icon training-status--icon outside"></span>
+                  <span class="training-status--text outside">{{ _('Not Enrolled') }}</span>
+                {% endif %}
+              </li></ul>
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+    <ul class="pager pager-bottom"><li>
+      <a class="pager__item next link" href="{{ url('contest_main') }}">{{ _('More') }} ></a>
+    </li></ul>
+  </div>
+{% endif %}
+<style>
+.contest__card.ready .section {
+    border-color: #4aa3df !important;
+}
+
+.contest__card.live .section {
+    border-color: #ef6c8f !important;
+}
+
+.contest__card:not(.ready):not(.live) .section {
+    border-color: #c9e7c9 !important;
+}
+</style>

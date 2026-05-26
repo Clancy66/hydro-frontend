@@ -1,0 +1,198 @@
+{% extends "layout/basic.html" %}
+{% block content %}
+<div class="row">
+    <div class="medium-9 columns">
+    <div class="row">
+        <div class="medium-6 columns">
+        <div class="section">
+            <div class="section__header">
+                <h1 class="section__title">{{ _('Create Category') }}</h1>
+            </div>
+            <div class="section__body">
+                <form method="post">
+                    {{ form.form_text({
+                        type:'text',
+                        label:'类别 ID (唯一、字典序)',
+                        columns:10,
+                        name:'category',
+                        required:true
+                        }) }}
+                    {{ form.form_text({
+                        type:'text',
+                        label:'类别展示名',
+                        columns:10,
+                        name:'displayName',
+                        required:true
+                        }) }}
+                    <div class="row">
+                        <div class="columns">
+                            <button name="operation" value="{{ 'create' }}" data-default-submit type="submit" class="rounded primary button">
+                                {{ _('Create') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div></div>
+        <div class="medium-6 columns">
+        <div class="section">
+            <div class="section__header">
+                <h1 class="section__title">{{ _('Distribute Training Plans') }}</h1>
+            </div>
+            <div class="section__body">
+                <form method="post">
+                <!-- 训练选择框容器 -->
+ 
+                    <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">训练</label>
+                    <div class="control">
+                        <select class="select" name="trainingId" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
+                            <option value=""{% if not trainingId %} selected{% endif %}>{{ _('All') }}</option>
+                            {%- for t in tdocs -%}
+                                <option value="{{ t.docId }}"{% if trainingId == t.docId %} selected {% endif %}>{{ t.title }}</option>
+                            {%- endfor -%}
+                            {%- if not tdocs|length -%}
+                                <option disabled>{{ _('No training plans available') }}</option>
+                            {%- endif -%}
+                        </select>
+                    </div>
+
+                <!-- 类别选择框容器 -->
+                    <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">类别</label>
+                    <div class="control">
+                        <select class="select" name="category" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
+                            <option value=""{% if not category %} selected{% endif %}>{{ _('All') }}</option>
+                            {%- for d in ddocs -%}
+                                <option value="{{ d.category }}"{% if category == d.category %} selected {% endif %}>{{ d.displayName }}</option>
+                            {%- endfor -%}
+                            {%- if not ddocs|length -%}
+                                <option disabled>{{ _('No category available') }}</option>
+                            {%- endif -%}
+                        </select>
+                    </div>
+
+                <!-- 按钮区域 -->
+                <div class="row">
+                    <div class="columns">
+                        <button name="operation" value="submit" data-default-submit type="submit" class="rounded primary button">
+                            {{ _('Submit') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            </div>
+        </div></div>
+    </div>
+    <div class="row">
+        <div class="medium-6 columns">
+        <div class="section">
+            <div class="section__header">
+                <h1 class="section__title">{{ _('Delete Category') }}</h1>
+                <blockquote class="note">
+                <p>{{ _('Deleting a category will unclassify the training lists within it.') }}</p>
+                </blockquote>
+            </div>
+            <div class="section__body">
+                <form method="post">
+                    {{ form.form_text({
+                        type:'text',
+                        label:'类别 ID',
+                        columns:10,
+                        name:'category',
+                        required:true
+                        }) }}
+                    <div class="row">
+                        <div class="columns">
+                            <button name="operation" value="{{ 'delete' }}" data-default-submit type="submit" class="rounded primary button">
+                                {{ _('Delete') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div></div>
+        <div class="medium-6 columns">
+        <div class="section">
+            <div class="section__header">
+                <h1 class="section__title">{{ _('All Category') }}</h1>
+                <blockquote class="note">
+                <p>{{ _('To update the category ID or display name, please delete the original category and add it again.') }}</p>
+                </blockquote>
+            </div>
+            <div class="section__body">
+                <div class="contest-problems" style="display: flex !important; 
+                                             flex-direction: row !important; 
+                                             flex-wrap: wrap !important; 
+                                             gap: 10px !important; 
+                                             align-items: center !important; 
+                                             justify-content: flex-start !important; 
+                                             width: 100% !important;">
+                {% for d in ddocs -%}
+                <a class="problem__tag-item interactive"
+                   href="{{ url('training_category', category=d.category)}}"
+                   style="display: inline-flex !important; 
+                          align-items: center !important; 
+                          justify-content: center !important; 
+                          width: auto !important; 
+                          min-width: 0 !important; 
+                          height: auto !important; 
+                          padding: 6px 16px !important; 
+                          text-decoration: none !important; 
+                          white-space: nowrap !important;"
+                   >
+                {{ d.displayName }} ({{ d.category }})
+                </a>
+                {%- endfor %}
+            </div></div>
+        </div></div>
+    </div>
+    </div>
+    <div class="large-3 columns">
+    {% if handler.user.hasPerm(perm.PERM_CREATE_TRAINING) %}
+      <div class="section side">
+        <ol class="menu">
+          <li class="menu__item">
+            <a href="{{ url('training_main') }}" class="menu__link"><span class="icon icon-unordered_list"></span> {{ _('View Training Plan') }}</a>
+          </li>
+          <li class="menu__item">
+            <a href="{{ url('training_create') }}" class="menu__link"><span class="icon icon-add"></span> {{ _('Create Training Plan') }}</a>
+          </li>
+          <li class="menu__item">
+            <a href="{{ url('training_category_edit') }}" class="menu__link"><span class="icon icon-edit"></span> {{ _('Manage Training Category') }}</a>
+          </li>
+        </ol>
+        <div class="section__body">
+          <div class="typo supplementary">
+            <p>{{ _('You can create your own training plans and share them with others.') }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    {% if handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
+      <div class="section side">
+        <div class="section__header">
+          <h1 class="section__title">{{ _('Enrolled') }}</h1>
+        </div>
+        <div class="section__body">
+          <ol class="my secondary training__list">
+            {%- for tid, tsdoc in tsdict -%}
+              {% if tsdoc['enroll'] %}
+                {% set progress = (100 * (tsdoc['donePids']|length) / (model.training.getPids(tdict[tsdoc['docId']].dag)|length))|round|int %}
+                <li class="training__item"><div class="media">
+                  <div class="media__left">
+                    <span class="icon training-status--icon {% if tsdoc['done'] %}done{% else %}progress{% endif %}"></span>
+                  </div>
+                  <div class="media__body">
+                    <h1 class="training__title"><a href="{{ url('training_detail', tid=tsdoc.docId) }}" data-emoji-enabled>{{ tdict[tsdoc['docId']]['title'] }}</a></h1>
+                    <div class="supplementary training__progress"><div class="training__progress-bar"><div class="training__progress-track" style="width:{{ progress }}%;"></div></div> {{ _('Complete') }} {{ progress }}%</div>
+                  </div>
+                </div></li>
+              {% endif %}
+            {%- endfor -%}
+          </ol>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
