@@ -33,10 +33,10 @@
 
 ## 部分截图
 
-![image1.png](./public/image1.png)
+![image1.png](./img/image1.png)
 
-![image2.png](./public/image2.png)
+![image2.png](./img/image2.png)
 
-![image3.png](./public/image3.png)
+![image3.png](./img/image3.png)
 
-![image4.png](./public/image4.png)
+![image4.png](./img/image4.png)
