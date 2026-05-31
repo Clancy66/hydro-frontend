@@ -130,6 +130,17 @@ class TrainingCategoryHandler extends Handler {
 }
 
 class TrainingCategoryEditHandler extends Handler {
+    check(category: string): boolean {
+        if (category.includes('/') || category.includes('\\') 
+              || category.includes(':') || category.includes('*') 
+              || category.includes('?') || category.includes('"') 
+              || category.includes('<') || category.includes('>') 
+              || category.includes('|') || category.includes(' ')) {
+            return false;
+        }
+        return true;
+    }
+
     async get({ domainId }) {
         if (!this.user.hasPerm(PERM.PERM_CREATE_TRAINING)) {
             throw new ForbiddenError();
@@ -149,6 +160,10 @@ class TrainingCategoryEditHandler extends Handler {
     async postCreate({ domainId }, category: string, displayName: string) {
         if (!this.user.hasPerm(PERM.PERM_CREATE_TRAINING)) {
             throw new ForbiddenError();
+        }
+
+        if (!this.check(category)) {
+            throw new ForbiddenError('Category 不允许包含 /\\:*?"<>| 以及空格等特殊字符');
         }
 
         const doc = await TrainingCategoryModel.getByName(domainId, category);
@@ -174,6 +189,10 @@ class TrainingCategoryEditHandler extends Handler {
         if (doc) {
             throw new FileExistsError(category);
         }
+        else if (!this.check(category)) {
+            throw new ForbiddenError('Category 不允许包含 /\\:*?"<>| 以及空格等特殊字符');
+        }
+
 
         const ddoc = await TrainingCategoryModel.getById(domainId, cid);
         const result = await Promise.all([
@@ -244,6 +263,7 @@ export async function apply(ctx: Context) {
         'Update Category': '更新类别',
         'Delete Category': '删除类别',
         'Category': '分类',
+        'Not Selected': '未选择',
         'No category available': '没有可用类别',
         'No training plans available': '没有可用训练',
         'Distribute Training Plans': '训练分类',

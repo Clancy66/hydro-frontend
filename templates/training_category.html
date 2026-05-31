@@ -52,7 +52,7 @@
                     <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">训练</label>
                     <div class="control">
                         <select class="select" name="trainingId" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
-                            <option value=""{% if not trainingId %} selected{% endif %}>{{ _('All') }}</option>
+                            <option value=""{% if not trainingId %} selected{% endif %}>{{ _('Not Selected') }}</option>
                             {%- for t in tdocs -%}
                                 <option value="{{ t.docId }}"{% if trainingId == t.docId %} selected {% endif %}>{{ t.title }}</option>
                             {%- endfor -%}
@@ -66,7 +66,7 @@
                     <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">类别</label>
                     <div class="control">
                         <select class="select" name="category" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
-                            <option value=""{% if not category %} selected{% endif %}>{{ _('All') }}</option>
+                            <option value=""{% if not category %} selected{% endif %}>{{ _('Not Selected') }}</option>
                             {%- for d in ddocs -%}
                                 <option value="{{ d.category }}"{% if category == d.category %} selected {% endif %}>{{ d.displayName }}</option>
                             {%- endfor -%}
@@ -103,7 +103,7 @@
                     <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">类别</label>
                     <div class="control">
                         <select class="select" name="cid" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
-                            <option value=""{% if not cid %} selected{% endif %}>{{ _('All') }}</option>
+                            <option value=""{% if not cid %} selected{% endif %}>{{ _('Not Selected') }}</option>
                             {%- for d in ddocs -%}
                                 <option value="{{ d._id }}"{% if cid == d._id %} selected {% endif %}>{{ d.displayName }}</option>
                             {%- endfor -%}
@@ -149,7 +149,7 @@
                     <label class="label" style="display: block; margin-bottom: 5px; font-size: 14px;">类别</label>
                     <div class="control">
                         <select class="select" name="category" style="width: 100%; height: 30px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff;">
-                            <option value=""{% if not category %} selected{% endif %}>{{ _('All') }}</option>
+                            <option value=""{% if not category %} selected{% endif %}>{{ _('Not Selected') }}</option>
                             {%- for d in ddocs -%}
                                 <option value="{{ d.category }}"{% if category == d.category %} selected {% endif %}>{{ d.displayName }}</option>
                             {%- endfor -%}
