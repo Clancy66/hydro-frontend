@@ -270,7 +270,7 @@ export async function apply(ctx: Context) {
         'Click the button below to view training plans of specific category.': '点击下面的按钮即可查看该类别下的训练计划。',
         'Category ID must be unique, it is recommended to use a valid identifier. The training homepage will display categories in dictionary order based on their IDs.': '类别 ID 需唯一，建议使用合法标识符，训练首页展示时会按照类别 ID 字典序展示。',
         'Set category tags for training problem sets. To change the category, just recategorize.': '给训练题单设置类别标签，如需更改类别，只需要重新分类即可。',
-        'Deleting a category will unclassify the training lists within it.': '删除类别后，该类别中的训练计划将处于未分类状态。',
-        'You can update the category ID or display name, or both.': '可以更新类别 ID 或展示名，也可以同时更新。',
+        'Deleting a category will unclassify the training lists within it.': '删除类别后，该类别中的训练计划将失去类别标签，可进行重新分类。',
+        'You can update the category ID or display name, or both.': '同时更新类别 ID 和展示名，若只更改一项，保持另一项不变即可。',
     });
 }
