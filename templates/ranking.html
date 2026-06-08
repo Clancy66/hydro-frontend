@@ -130,6 +130,18 @@ table.ranking-table th.col--ac-count,
 table.ranking-table td.col--ac-count {
     padding-right: 24px !important; 
 }
+/* 强制禁用可能导致问题的定位属性 */
+.ranking-table thead tr,
+.ranking-table thead th {
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+}
+
+/* 确保表格使用标准表格布局 */
+.ranking-table {
+    table-layout: fixed !important; /* 或者保持 auto，但固定布局更可控 */
+}
 </style>
 <div class="row">
   <div class="medium-12 columns">
@@ -143,7 +155,7 @@ table.ranking-table td.col--ac-count {
           {{ nothing.render('Sorry, there are no users in this domain.') }}
           {% else %}
           
-          <div class="ranking-table-wrapper" style="overflow-x: auto; position: relative;">
+          <!-- ⚡ 核心改造：扩展为 6 列的现代化终极天梯榜 -->
           <table class="data-table ranking-table">
             <thead>
               <tr>
@@ -192,7 +204,7 @@ table.ranking-table td.col--ac-count {
               {%- endfor -%}
             </tbody>
           </table>
-          </div>
+          
           {{ paginator.render(page, upcount) }}
           {% endif %}
         </div>
