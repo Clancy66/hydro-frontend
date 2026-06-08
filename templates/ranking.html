@@ -6,6 +6,49 @@
 {% block content %}
 <style>
 /* ==========================================================================
+   ⚡ 修复表头遮挡问题 - 添加防抖容器
+   ========================================================================== */
+
+/* 新增：表格外层包裹容器，防止渲染偏移 */
+.ranking-table-container {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+}
+
+/* 确保表格不会产生意外的定位上下文 */
+.ranking-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #ffffff !important;
+    table-layout: auto !important;
+    position: relative !important;
+    top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 关键修复：防止表格行产生定位偏移 */
+.ranking-table tbody tr {
+    position: relative !important;
+    top: 0 !important;
+}
+
+/* 强制表头行使用标准定位 */
+.ranking-table thead tr {
+    position: static !important;
+    top: auto !important;
+}
+
+/* 现有的其他样式保持不变... */
+.section,
+div.section,
+.section__body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    overflow: visible !important; /* 改为 visible，让表格正常显示 */
+}
+/* ==========================================================================
    ⚡ 排名天梯榜现代通栏高级改色（完美同步比赛页）
    ========================================================================== */
 
@@ -130,18 +173,7 @@ table.ranking-table th.col--ac-count,
 table.ranking-table td.col--ac-count {
     padding-right: 24px !important; 
 }
-/* 强制禁用可能导致问题的定位属性 */
-.ranking-table thead tr,
-.ranking-table thead th {
-    position: static !important;
-    top: auto !important;
-    z-index: auto !important;
-}
 
-/* 确保表格使用标准表格布局 */
-.ranking-table {
-    table-layout: fixed !important; /* 或者保持 auto，但固定布局更可控 */
-}
 </style>
 <div class="row">
   <div class="medium-12 columns">
