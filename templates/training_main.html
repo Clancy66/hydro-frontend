@@ -1,6 +1,43 @@
 {% extends "layout/basic.html" %}
 {% block content %}
 <style>
+/* ==========================================================================
+   ⚡ 修复训练列表表头遮挡问题 - 与排名页同样的方式
+   ========================================================================== */
+
+/* 表格外层包裹容器（如果模板中没有，可以先不加，用下面的修复） */
+
+/* 确保表格不会产生意外的定位上下文 */
+.training-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #ffffff !important;
+    table-layout: auto !important;
+    position: relative !important;
+    top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 关键修复：防止表格行产生定位偏移 */
+.training-table tbody tr {
+    position: relative !important;
+    top: 0 !important;
+}
+
+/* 强制表头行使用标准定位 */
+.training-table thead tr {
+    position: static !important;
+    top: auto !important;
+}
+
+/* 父容器 overflow 改为 visible */
+.section,
+div.section,
+.section__body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    overflow: visible !important;
+}
 /* 训练状态专用高级胶囊效果 */
 .training-badge {
     display: inline-flex !important;
@@ -141,20 +178,6 @@ table.training-table thead th {
 
 table.training-table tbody tr td {
     padding: 5px 5px !important; /* 确保第一行和后续所有行的间距完全一致 */
-}
-/* 强制重置 - 使用更具体的选择器链 */
-body div[data-fragment-id="ranking"] .data-table.ranking-table thead,
-body div[data-fragment-id="ranking"] .data-table.ranking-table thead tr,
-body div[data-fragment-id="ranking"] .data-table.ranking-table thead th {
-    position: relative !important;
-    top: 0 !important;
-    transform: none !important;
-    z-index: auto !important;
-}
-
-/* 确保表头不会覆盖第一行数据 */
-body div[data-fragment-id="ranking"] .data-table.ranking-table tbody tr:first-child td {
-    padding-top: 12px !important;
 }
 </style>
 
