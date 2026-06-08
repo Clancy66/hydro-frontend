@@ -469,4 +469,55 @@ table.data-table td.col--difficulty {
       </div>
     </div>
   </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取当前搜索关键词
+    var currentQ = '{{ qs|default("")|escape("js") }}';
+    
+    // 修复分类链接的 fragment 问题，并支持取消筛选
+    var categoryLinks = document.querySelectorAll('.group-list a, .chip-list a');
+    categoryLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var targetCategory = this.textContent.trim();
+            var href = this.getAttribute('href');
+            
+            // 从 href 中提取分类关键词
+            var categoryMatch = href.match(/category%3A([^&]+)/);
+            var category = categoryMatch ? decodeURIComponent(categoryMatch[1]) : targetCategory;
+            
+            // 检查当前是否已经选中了该分类
+            var currentCategoryMatch = currentQ.match(/category:([^\s]+)/);
+            var currentCategory = currentCategoryMatch ? currentCategoryMatch[1] : null;
+            
+            var newQ = '';
+            if (currentCategory === category) {
+                // 同一分类再次点击：取消筛选，清空分类条件
+                newQ = currentQ.replace(/category:[^\s]+(\s|$)/g, '').trim();
+            } else {
+                // 不同分类：替换或添加分类条件
+                if (currentCategoryMatch) {
+                    newQ = currentQ.replace(/category:[^\s]+/, 'category:' + category);
+                } else {
+                    newQ = currentQ ? currentQ + ' category:' + category : 'category:' + category;
+                }
+            }
+            
+            // 构建新 URL
+            var newUrl = "{{ url('problem_main') }}?q=" + encodeURIComponent(newQ);
+            var sortSelect = document.querySelector('select[name="sort"]');
+            if (sortSelect && sortSelect.value !== 'default') {
+                newUrl += "&sort=" + sortSelect.value;
+            }
+            
+            // 跳转
+            if (window.Hydro && window.Hydro.navigate) {
+                window.Hydro.navigate(newUrl);
+            } else {
+                window.location.href = newUrl;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
