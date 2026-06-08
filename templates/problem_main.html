@@ -2,55 +2,6 @@
 {% import "components/problem.html" as problem with context %}
 {% extends "layout/basic.html" %}
 {% block content %}
-<script>
-(function() {
-    // 在 DOM 加载前就准备好修复函数
-    var fixPagerLinks = function() {
-        var pagerLinks = document.querySelectorAll('.pager a');
-        pagerLinks.forEach(function(link) {
-            if (!link.hasAttribute('data-fragment')) {
-                link.setAttribute('data-fragment', 'problem_list');
-            }
-            // 移除可能阻止跳转的属性
-            link.removeAttribute('data-fragment-ignore');
-            link.classList.remove('fragment-ignore');
-        });
-    };
-    
-    // 使用 MutationObserver 立即开始监听
-    var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length) {
-                fixPagerLinks();
-            }
-        });
-    });
-    
-    // 如果 document.body 已存在，立即开始监听
-    if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true });
-        fixPagerLinks();
-    } else {
-        // 等待 body 出现
-        window.addEventListener('DOMContentLoaded', function() {
-            observer.observe(document.body, { childList: true, subtree: true });
-            fixPagerLinks();
-        });
-    }
-    
-    // 重写可能的 fragment 处理函数
-    if (window.Hydro && window.Hydro._fragmentHandler) {
-        var originalHandler = window.Hydro._fragmentHandler;
-        window.Hydro._fragmentHandler = function(e) {
-            var link = e.target.closest('a');
-            if (link && link.querySelector && link.querySelector('.pager')) {
-                return true;
-            }
-            return originalHandler.call(this, e);
-        };
-    }
-})();
-</script>
 <style>
 table.data-table td.col--status {
     position: relative;
@@ -574,48 +525,144 @@ table.data-table td.col--difficulty {
     </div>
   </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 获取当前搜索关键词
-    var currentQ = '{{ qs|default("")|escape("js") }}';
-    
-    // 修复分类链接的 fragment 问题，并支持取消筛选
-    var categoryLinks = document.querySelectorAll('.group-list a, .chip-list a');
-    categoryLinks.forEach(function(link) {
-        link.addEventListener('click', function(e) {
+(function () {
+
+    function navigate(url) {
+        if (window.Hydro?.navigate) {
+            window.Hydro.navigate(url);
+        } else {
+            location.href = url;
+        }
+    }
+
+    function getCurrentQ() {
+        const input =
+            document.querySelector('#searchForm input[name="q"]');
+        return input ? input.value.trim() : '';
+    }
+
+    function getCurrentSort() {
+        const select =
+            document.querySelector('#searchForm select[name="sort"]');
+        return select ? select.value : 'default';
+    }
+
+    document.addEventListener('click', function (e) {
+
+        const link = e.target.closest('a');
+
+        if (!link) return;
+
+        //
+        // 分类标签
+        //
+        if (link.classList.contains('problem__tag-link')) {
+
             e.preventDefault();
-            var targetCategory = this.textContent.trim();
-            var href = this.getAttribute('href');
-            
-            var categoryMatch = href.match(/category%3A([^&]+)/);
-            var category = categoryMatch ? decodeURIComponent(categoryMatch[1]) : targetCategory;
-            
-            var currentCategoryMatch = currentQ.match(/category:([^\s]+)/);
-            var currentCategory = currentCategoryMatch ? currentCategoryMatch[1] : null;
-            
-            var newQ = '';
+
+            let currentQ = getCurrentQ();
+
+            const href = link.getAttribute('href');
+
+            const categoryMatch =
+                href.match(/category%3A([^&]+)/);
+
+            if (!categoryMatch) return;
+
+            const category =
+                decodeURIComponent(categoryMatch[1]);
+
+            const currentCategoryMatch =
+                currentQ.match(/category:([^\s]+)/);
+
+            const currentCategory =
+                currentCategoryMatch
+                    ? currentCategoryMatch[1]
+                    : null;
+
+            let newQ = '';
+
             if (currentCategory === category) {
-                newQ = currentQ.replace(/category:[^\s]+(\s|$)/g, '').trim();
+
+                newQ = currentQ
+                    .replace(/category:[^\s]+(\s|$)/g, '')
+                    .trim();
+
             } else {
+
                 if (currentCategoryMatch) {
-                    newQ = currentQ.replace(/category:[^\s]+/, 'category:' + category);
+
+                    newQ = currentQ.replace(
+                        /category:[^\s]+/,
+                        'category:' + category
+                    );
+
                 } else {
-                    newQ = currentQ ? currentQ + ' category:' + category : 'category:' + category;
+
+                    newQ = currentQ
+                        ? currentQ + ' category:' + category
+                        : 'category:' + category;
                 }
             }
-            
-            var newUrl = "{{ url('problem_main') }}?q=" + encodeURIComponent(newQ);
-            var sortSelect = document.querySelector('select[name="sort"]');
-            if (sortSelect && sortSelect.value !== 'default') {
-                newUrl += "&sort=" + sortSelect.value;
+
+            let url =
+                "{{ url('problem_main') }}" +
+                '?q=' +
+                encodeURIComponent(newQ);
+
+            const sort = getCurrentSort();
+
+            if (sort && sort !== 'default') {
+                url += '&sort=' + encodeURIComponent(sort);
             }
-            
-            if (window.Hydro && window.Hydro.navigate) {
-                window.Hydro.navigate(newUrl);
-            } else {
-                window.location.href = newUrl;
+
+            navigate(url);
+            return;
+        }
+
+        //
+        // 分页器
+        //
+        if (link.classList.contains('pager__item')) {
+
+            e.preventDefault();
+
+            const pageHref =
+                link.getAttribute('href');
+
+            if (!pageHref) return;
+
+            const pageUrl =
+                new URL(pageHref, location.href);
+
+            const page =
+                pageUrl.searchParams.get('page');
+
+            if (!page) return;
+
+            let url =
+                "{{ url('problem_main') }}" +
+                '?page=' +
+                encodeURIComponent(page);
+
+            const q = getCurrentQ();
+
+            if (q) {
+                url += '&q=' + encodeURIComponent(q);
             }
-        });
+
+            const sort = getCurrentSort();
+
+            if (sort && sort !== 'default') {
+                url += '&sort=' + encodeURIComponent(sort);
+            }
+
+            navigate(url);
+            return;
+        }
+
     });
-});
+
+})();
 </script>
 {% endblock %}
