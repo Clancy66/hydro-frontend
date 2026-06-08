@@ -98,11 +98,45 @@ table.homework-table thead th.col--homework-status {
     white-space: nowrap !important;
 }
 
-.homework-badge--running { background: #3b82f6 !important; color: #ffffff !important; }
-.homework-badge--pending { background: #e0f2fe !important; color: #0369a1 !important; }
-.homework-badge--ended { background: #f1f5f9 !important; color: #94a3b8 !important; }
+/* 状态胶囊样式 - 颜色调整 */
+.homework-badge--running { 
+    background: #22c55e !important; /* 绿色背景 (Tailwind green-500) */
+    color: #ffffff !important; 
+}
+.homework-badge--pending { 
+    background: #3b82f6 !important; /* 蓝色背景 (Tailwind blue-500) */
+    color: #ffffff !important; 
+}
+.homework-badge--ended { 
+    background: #f1f5f9 !important; /* 保持原样灰色 */
+    color: #94a3b8 !important; 
+}
 
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // 查找页面中所有的状态胶囊
+  const badges = document.querySelectorAll('.homework-badge');
+  
+  badges.forEach(badge => {
+    const text = badge.textContent.trim(); // 获取胶囊内的真实文字并去除空格
+    
+    if (text.includes('进行')) {
+      // 包含“进行中”或“正在进行”时，变为绿色背景、白色字
+      badge.style.setProperty('background', '#22c55e', 'important');
+      badge.style.setProperty('color', '#ffffff', 'important');
+    } else if (text.includes('开始')) {
+      // 包含“马上开始”或“未开始”时，变为蓝色背景、白色字
+      badge.style.setProperty('background', '#3b82f6', 'important');
+      badge.style.setProperty('color', '#ffffff', 'important');
+    } else {
+      // 其他情况（如已结束）保持原本的浅灰色
+      badge.style.setProperty('background', '#f1f5f9', 'important');
+      badge.style.setProperty('color', '#94a3b8', 'important');
+    }
+  });
+});
+</script>
 
 {{ set(UiContext, 'docs', calendar) }}
 <div class="row">
@@ -181,12 +215,17 @@ table.homework-table thead th.col--homework-status {
               <td class="col--homework-status">
                 {% set status_raw = model.contest.statusText(tdoc) %}
                 <span class="homework-badge 
-                  {% if status_raw == 'Underway' or status_raw == '进行中' %}homework-badge--running
-                  {% elif status_raw == 'Not Started' or status_raw == '未开始' %}homework-badge--pending
-                  {% else %}homework-badge--ended{% endif %}">
+                  {% if status_raw in ['Underway', 'Running', '进行中', '正在进行...'] %}
+                    homework-badge--running
+                  {% elif status_raw in ['Not Started', 'Pending', '未开始', '马上开始'] %}
+                    homework-badge--pending
+                  {% else %}
+                    homework-badge--ended
+                  {% endif %}">
                   {{ _(status_raw) }}
                 </span>
               </td>
+
             </tr>
           {%- endfor -%}
           </tbody>
