@@ -142,45 +142,20 @@ table.training-table thead th {
 table.training-table tbody tr td {
     padding: 5px 5px !important; /* 确保第一行和后续所有行的间距完全一致 */
 }
+/* 修复生产环境表头漂移遮挡问题 */
+.data-table thead,
+.data-table thead tr,
+.data-table thead th {
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+}
 
+.data-table tbody tr:first-child td {
+    padding-top: 14px !important;
+}
 </style>
-<script>
-(function() {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', fixTrainingTable);
-    } else {
-        fixTrainingTable();
-    }
-    
-    function fixTrainingTable() {
-        // 修复长标题换行问题
-        var trainingLinks = document.querySelectorAll('.training-link');
-        trainingLinks.forEach(function(link) {
-            if (link.textContent.length > 30) {
-                link.style.whiteSpace = 'normal';
-                link.style.wordBreak = 'break-word';
-            }
-        });
-        
-        // 确保进度条百分比显示正确
-        var progressContainers = document.querySelectorAll('.col--training-progress');
-        progressContainers.forEach(function(container) {
-            var percentSpan = container.querySelector('.ac-percent-text');
-            var progressBar = container.querySelector('.ac-progress-inner');
-            if (percentSpan && progressBar) {
-                var width = progressBar.style.width;
-                if (width && percentSpan.textContent !== width) {
-                    // 如果百分比文字和进度条宽度不匹配，修正文字
-                    var match = width.match(/(\d+)%/);
-                    if (match && match[1] !== percentSpan.textContent.replace('%', '')) {
-                        percentSpan.textContent = match[1] + '%';
-                    }
-                }
-            }
-        });
-    }
-})();
-</script>
+
 <div class="row">
   <div class="medium-9 columns">
     <div class="section">
