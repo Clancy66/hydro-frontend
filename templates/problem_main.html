@@ -42,6 +42,8 @@ table.data-table td.col--status {
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
+    position: relative;
+    z-index: 1;
 }
 
 .ac-progress-bar {
@@ -260,7 +262,7 @@ table.data-table tbody tr:hover {
         transform .15s ease,
         visibility .15s ease !important;
 
-    z-index: 9999 !important;
+    z-index: 99999 !important;
 }
 .ac-tooltip::after {
     content: "";
