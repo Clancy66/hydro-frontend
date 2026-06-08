@@ -9,17 +9,28 @@
     <div class="row" style="display: flex;
                             flex-wrap: wrap;">
       {%- for tdoc in tdocs -%}
+        <!-- 
+           注意：这里保留了原有的逻辑判断类名 
+           .live (进行中) -> 红色边框
+           .ready (未开始) -> 蓝色边框
+           默认 (已结束) -> 绿色边框
+        -->
         <div class="medium-6 columns contest__card contest-type--{{ tdoc.rule }} {% if model.contest.isOngoing(tdoc, tsdoc) %}{{ 'live' }}{% elif model.contest.isUpcoming(tdoc) %}{{ 'ready' }}{% endif %}" style="padding: 0px 5px !important;">
-          <div class="section" style="margin: 5px;
+          
+          <!-- 这里的 .section 是卡片的主体容器 -->
+          <div class="section card-hover-effect" style="margin: 5px;
                       vertical-align: top;
-                      box-shadow: none !important;
-                      border: 2px solid transparent;">
+                      border: 2px solid transparent;
+                      /* 移除原有的 box-shadow: none，让 CSS 接管 */
+                      ">
+            
             <div class="media__left medium">
               <div class="contest__date numbox">
                 <div class="numbox__num large">{{ datetimeSpan(tdoc['beginAt'], false, 'D')|safe }}</div>
                 <div class="numbox__text">{{ datetimeSpan(tdoc['beginAt'], false, 'YYYY-M')|safe }}</div>
               </div>
             </div>
+            
             <div class="media__body medium">
               <h1 class="contest__title" style="gap: 10px !important; 
                                              padding: 10px 10px 0px 0px !important; 
@@ -32,9 +43,10 @@
                       overflow:hidden;
                       text-overflow:ellipsis;
                       line-height:1.4em;
-                      height:2.8em; /* 固定两行高度 */
-                      min-height: 2.8em;  /* 防止被覆盖 */
+                      height:2.8em; 
+                      min-height: 2.8em;  
                       word-break:break-word;">{{ tdoc.title }}</a></h1>
+              
               <ul class="supplementary list" style="display: inline-flex !important; 
                     align-items: center !important; 
                     justify-content: center !important; 
@@ -102,7 +114,38 @@
     </li></ul>
   </div>
 {% endif %}
+
 <style>
+/* --- 核心修改区域 --- */
+
+/* 1. 给卡片添加基础阴影和过渡动画 */
+.contest__card .section {
+    /* 初始状态：轻微阴影 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    
+    /* 关键：添加过渡效果，让悬浮动作平滑 */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    
+    /* 保持圆角（如果原主题没有的话） */
+    border-radius: 8px; 
+    
+    /* 确保背景不透明 */
+    background-color: #fff; 
+}
+
+/* 2. 鼠标悬停时的浮动效果 */
+.contest__card .section:hover {
+    /* 向上浮动 5px */
+    transform: translateY(-5px) !important;
+    
+    /* 阴影加深、扩散范围变大，营造立体感 */
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.12) !important;
+    
+    /* 可选：悬停时稍微加深一点边框颜色，增强反馈 */
+    z-index: 10; /* 防止浮动时被邻居遮挡 */
+}
+
+/* --- 原有配色逻辑保持不变 --- */
 .contest__card.ready .section {
     border-color: #4aa3df !important;
 }
