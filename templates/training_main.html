@@ -144,6 +144,43 @@ table.training-table tbody tr td {
 }
 
 </style>
+<script>
+(function() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fixTrainingTable);
+    } else {
+        fixTrainingTable();
+    }
+    
+    function fixTrainingTable() {
+        // 修复长标题换行问题
+        var trainingLinks = document.querySelectorAll('.training-link');
+        trainingLinks.forEach(function(link) {
+            if (link.textContent.length > 30) {
+                link.style.whiteSpace = 'normal';
+                link.style.wordBreak = 'break-word';
+            }
+        });
+        
+        // 确保进度条百分比显示正确
+        var progressContainers = document.querySelectorAll('.col--training-progress');
+        progressContainers.forEach(function(container) {
+            var percentSpan = container.querySelector('.ac-percent-text');
+            var progressBar = container.querySelector('.ac-progress-inner');
+            if (percentSpan && progressBar) {
+                var width = progressBar.style.width;
+                if (width && percentSpan.textContent !== width) {
+                    // 如果百分比文字和进度条宽度不匹配，修正文字
+                    var match = width.match(/(\d+)%/);
+                    if (match && match[1] !== percentSpan.textContent.replace('%', '')) {
+                        percentSpan.textContent = match[1] + '%';
+                    }
+                }
+            }
+        });
+    }
+})();
+</script>
 <div class="row">
   <div class="medium-9 columns">
     <div class="section">
