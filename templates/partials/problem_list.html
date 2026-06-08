@@ -2,44 +2,6 @@
 {% import "components/record.html" as record with context %}
 {% import "components/problem.html" as problem with context %}
 {% import "components/nothing.html" as nothing with context %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var toggleBtn = document.querySelector('.toggle-tag');
-    if (!toggleBtn) return;
-    
-    var showText = toggleBtn.getAttribute('data-show-text') || '显示标签';
-    var hideText = toggleBtn.getAttribute('data-hide-text') || '隐藏标签';
-    var isShowingTags = false;
-    
-    toggleBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        var problemTable = document.querySelector('.data-table');
-        if (problemTable) {
-            if (isShowingTags) {
-                // 当前显示标签，点击后隐藏
-                problemTable.classList.add('hide-problem-tag');
-                toggleBtn.textContent = showText;
-            } else {
-                // 当前隐藏标签，点击后显示
-                problemTable.classList.remove('hide-problem-tag');
-                toggleBtn.textContent = hideText;
-            }
-            isShowingTags = !isShowingTags;
-        }
-    });
-    
-    // 初始状态检测
-    var problemTable = document.querySelector('.data-table');
-    if (problemTable && problemTable.classList.contains('hide-problem-tag')) {
-        isShowingTags = false;
-        toggleBtn.textContent = showText;
-    } else {
-        isShowingTags = true;
-        toggleBtn.textContent = hideText;
-    }
-});
-</script>
 <div data-fragment-id="problem_list">
 {% if not pdocs.length %}
   {{ nothing.render('Sorry, there are no problems in the problem set.') }}

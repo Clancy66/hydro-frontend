@@ -2,6 +2,55 @@
 {% import "components/problem.html" as problem with context %}
 {% extends "layout/basic.html" %}
 {% block content %}
+<script>
+(function() {
+    // 在 DOM 加载前就准备好修复函数
+    var fixPagerLinks = function() {
+        var pagerLinks = document.querySelectorAll('.pager a');
+        pagerLinks.forEach(function(link) {
+            if (!link.hasAttribute('data-fragment')) {
+                link.setAttribute('data-fragment', 'problem_list');
+            }
+            // 移除可能阻止跳转的属性
+            link.removeAttribute('data-fragment-ignore');
+            link.classList.remove('fragment-ignore');
+        });
+    };
+    
+    // 使用 MutationObserver 立即开始监听
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                fixPagerLinks();
+            }
+        });
+    });
+    
+    // 如果 document.body 已存在，立即开始监听
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+        fixPagerLinks();
+    } else {
+        // 等待 body 出现
+        window.addEventListener('DOMContentLoaded', function() {
+            observer.observe(document.body, { childList: true, subtree: true });
+            fixPagerLinks();
+        });
+    }
+    
+    // 重写可能的 fragment 处理函数
+    if (window.Hydro && window.Hydro._fragmentHandler) {
+        var originalHandler = window.Hydro._fragmentHandler;
+        window.Hydro._fragmentHandler = function(e) {
+            var link = e.target.closest('a');
+            if (link && link.querySelector && link.querySelector('.pager')) {
+                return true;
+            }
+            return originalHandler.call(this, e);
+        };
+    }
+})();
+</script>
 <style>
 table.data-table td.col--status {
     position: relative;
@@ -529,26 +578,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 获取当前搜索关键词
     var currentQ = '{{ qs|default("")|escape("js") }}';
     
-    // 处理分类链接和分页链接的函数
-    function handleLinkClick(e) {
-        e.preventDefault();
-        var url = this.getAttribute('href');
-        if (url && url !== '#') {
-            if (window.Hydro && window.Hydro.navigate) {
-                window.Hydro.navigate(url);
-            } else {
-                window.location.href = url;
-            }
-        }
-    }
-    
-    // 处理分类链接（支持取消筛选）
+    // 修复分类链接的 fragment 问题，并支持取消筛选
     var categoryLinks = document.querySelectorAll('.group-list a, .chip-list a');
     categoryLinks.forEach(function(link) {
-        // 移除 fragment 相关属性
-        link.removeAttribute('data-fragment');
-        link.classList.remove('fragment');
-        
         link.addEventListener('click', function(e) {
             e.preventDefault();
             var targetCategory = this.textContent.trim();
@@ -584,33 +616,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // 修复分页链接 - 关键修复
-    var paginationLinks = document.querySelectorAll('.pagination a');
-    paginationLinks.forEach(function(link) {
-        link.removeAttribute('data-fragment');
-        link.classList.remove('fragment');
-        link.addEventListener('click', handleLinkClick);
-    });
-    
-    // 使用 MutationObserver 监听动态加载的分页链接（因为分页组件可能会重新渲染）
-    var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length) {
-                var newPaginationLinks = document.querySelectorAll('.pagination a');
-                newPaginationLinks.forEach(function(link) {
-                    if (!link.hasAttribute('data-fragment-fixed')) {
-                        link.removeAttribute('data-fragment');
-                        link.classList.remove('fragment');
-                        link.addEventListener('click', handleLinkClick);
-                        link.setAttribute('data-fragment-fixed', 'true');
-                    }
-                });
-            }
-        });
-    });
-    
-    observer.observe(document.body, { childList: true, subtree: true });
 });
 </script>
 {% endblock %}
