@@ -113,6 +113,35 @@ table.training-table tbody tr:hover td {
     background: #f8fafc !important;
     background-color: #f8fafc !important;
 }
+/* ==========================================================================
+   ⚡ 训练列表页表头防下沉重叠修正（完美同步开发环境）
+   ========================================================================== */
+
+/* 1. 彻底斩断线上合并压缩后可能产生的 sticky/absolute 定位 */
+table.training-table thead,
+table.training-table thead tr,
+table.training-table thead th {
+    position: static !important; /* 强行回归正常网页排版，绝不悬空 */
+    transform: none !important;
+    top: auto !important;
+    z-index: auto !important;
+}
+
+/* 2. 确保数据行的第一行规规矩矩排在下方，绝不上浮 */
+table.training-table tbody tr {
+    position: static !important;
+    transform: none !important;
+}
+
+/* 3. 细节微调：确保表头（th）和数据单元格（td）拥有坚实、统一的 padding 撑开空间 */
+table.training-table thead th {
+    padding: 5px 5px !important; /* 适当加厚表头，形成天然的视线隔离带 */
+    border-bottom: 1px solid #e2e8f0 !important; /* 精致的灰线，把表头和数据彻底隔开 */
+}
+
+table.training-table tbody tr td {
+    padding: 5px 5px !important; /* 确保第一行和后续所有行的间距完全一致 */
+}
 
 </style>
 <div class="row">

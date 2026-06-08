@@ -69,10 +69,36 @@ table.ranking-table tbody tr:hover td {
     background: #f8fafc !important; /* 鼠标经过时整行浮现淡淡的冷灰色 */
 }
 
-/* 可选微调：如果是当前登录用户自己的那一行，可以给他加一个极淡的标识（或者不需要就删掉） */
-.ranking-self-row td {
-    background: #f0fdf4 !important; /* 自己那一行微微泛绿，方便定位 */
+/* ==========================================================================
+   ⚡ 自身排名行（ranking-self-row）解绑重置，根治表头遮挡 Bug
+   ========================================================================== */
+
+/* 1. 强行解除这一行可能附带的任何绝对/相对定位，使其老老实实作为表格的第一行排版 */
+table.ranking-table tbody tr.ranking-self-row,
+table.ranking-table tr.ranking-self-row {
+    position: static !important; /* 彻底粉碎可能存在的 absolute 或 fixed 导致的重叠 */
+    transform: none !important;
+    margin: 0 !important;
 }
+
+/* 2. 确保自己这一行里面的单元格 padding、高度、字号与普通行严格 100% 同步 */
+table.ranking-table tr.ranking-self-row td {
+    position: static !important;
+    padding: 12px 14px !important; /* 保持与下方 udocs 循环一致的精致间距 */
+    border-bottom: 1px solid #f1f5f9 !important; /* 保持底边框统一 */
+    vertical-align: middle !important;
+    
+    /* ⚡ 核心改色：使用现代极简风淡绿作为背景，衬托自己，同时绝不干扰上方表头 */
+    background: #f0fdf4 !important; 
+    background-color: #f0fdf4 !important;
+}
+
+/* 3. 悬停在自己这一行时，保持淡淡的绿意，不被灰色冲刷 */
+table.ranking-table tr.ranking-self-row:hover td {
+    background: #dcfce7 !important;
+    background-color: #dcfce7 !important;
+}
+
 table.ranking-table th.col--rank,
 table.ranking-table td.col--rank {
     width: 60px !important;
