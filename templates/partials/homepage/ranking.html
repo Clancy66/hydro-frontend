@@ -1,0 +1,116 @@
+{% if payload.length %}
+<style>
+/* ==========================================================================
+   ⚡ 首页专属极简 Rating 天梯榜精密对齐 (完美同步大排名页)
+   ========================================================================== */
+
+/* 1. 确保首页排名卡片开启防溢出裁剪，顺从系统的圆角 */
+.homepage-ranking-section,
+.homepage-ranking-section .section__body {
+    background: #ffffff !important;
+    overflow: hidden !important;
+}
+
+/* 2. 表格基础：砍掉斑马纹与多余竖线 */
+table.home-ranking-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #ffffff !important;
+}
+
+table.home-ranking-table tbody tr td {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    vertical-align: middle !important;
+    font-size: 14px;
+    background: #ffffff !important;
+}
+
+/* 3. 完美复刻：横向完全通栏的淡灰色加粗表头 */
+table.home-ranking-table thead th {
+    padding: 12px 16px !important;
+    background-color: #f8fafc !important; /* 通栏专属淡灰底色 */
+    color: #475569 !important; /* 调深表头颜色 */
+    font-size: 13px !important;
+    font-weight: 700 !important; /* ⚡ 强制字重加粗 */
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-left: none !important;
+}
+
+/* 4. 📐 精密控制 4 列在水平方向的权重占比与向右靠拢 */
+table.home-ranking-table th.col--rank,
+table.home-ranking-table td.col--rank {
+    width: 60px !important;
+    min-width: 60px !important;
+    text-align: center !important; /* 序号保持居中 */
+    color: #64748b;
+}
+
+table.home-ranking-table th.col--user,
+table.home-ranking-table td.col--user {
+    width: auto !important; /* 用户名作为主列弹性横向自适应延伸，把右侧推过去 */
+    text-align: left !important;
+}
+
+/* ⚡ 核心修复：压缩前一列宽度，并将两列数据硬性全部右对齐，使其流畅贴右 */
+table.home-ranking-table th.col--total-rp,
+table.home-ranking-table td.col--total-rp {
+    width: 100px !important;
+    min-width: 100px !important;
+    text-align: center !important; 
+}
+
+table.home-ranking-table th.col--ac-count,
+table.home-ranking-table td.col--ac-count {
+    width: 100px !important;
+    min-width: 100px !important;
+    text-align: center !important;
+    padding-right: 24px !important; /* ⚡ 精确控制最右边距离卡片边缘的呼吸空隙 */
+}
+
+/* 纯白交互悬停高亮 */
+table.home-ranking-table tbody tr:hover td {
+    background: #f8fafc !important;
+}
+
+</style>
+  <div class="section homepage-ranking-section">
+    <div class="section__header">
+      <h1 class="section__title">{{ _('Ranking') }}</h1>
+    </div>
+    <div class="section__body no-padding" style="overflow: hidden">
+      <table class="data-table home-ranking-table">
+        <thead>
+          <tr>
+            <th class="col--rank">{{ _('Rank') }}</th>
+            <th class="col--user">{{ _('Username') }}</th>
+            <th class="col--total-rp">{{ _('RP') }}</th>
+            <th class="col--ac-count">{{ _('Accept') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for uid in payload -%}
+            {% set udoc = udict[uid] %}
+            <tr>
+              <td class="col--rank">{{ loop.index }}</td>
+              <td class="col--user">{{ user.render_inline(udoc, levelbadge=false) }}</td>
+              <td class="col--total-rp" style="font-weight: bold; color: #3b82f6;">{{ udoc.rp|default(0)|round(0) }}</td>
+              <td class="col--ac-count" style="font-weight: 600; color: #16a34a;">{{ udoc.nAccept|default(0) }}</td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+    
+    <ul class="pager pager-bottom">
+      <li style="width: 100%; text-align: center;">
+        <a class="pager__item next link" href="{{ url('ranking') }}">{{ _('More') }} ></a>
+      </li>
+    </ul>
+  </div>
+{% endif %}

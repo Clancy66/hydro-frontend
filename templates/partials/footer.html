@@ -3,7 +3,6 @@
     <div class="footer__extra-link clearfix">
       <div class="footer__extra-left">
         <ol class="clearfix">
-          <li class="footer__extra-link-item"><a href="{{ url('record_main') }}">{{ _('Judging Queue') }}</a></li>
           <li class="footer__extra-link-item"><a href="{{ url('status') }}">{{ _('Service Status') }}</a></li>
           <li class="footer__extra-link-item">
             {% if handler.session.legacy %}
@@ -12,6 +11,7 @@
               <a href="/legacy?legacy=true">{{ _('Legacy mode') }}</a>
             {% endif %}
           </li>
+          <li class="footer__extra-link-item"><a href="{{ url('wiki_help') }}">{{ _('Help') }}</a></li>
           <li class="footer__extra-link-item nojs--hide" data-dropdown-target="#menu-footer-theme">
             <span><span class="icon icon-global"></span> {{ _('Theme') }} <span class="icon icon-expand_less"></span></span>
             <ol class="dropdown-target menu" id="menu-footer-theme">

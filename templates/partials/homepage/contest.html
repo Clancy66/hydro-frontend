@@ -5,10 +5,11 @@
     <div class="section__header" style="padding-bottom: 10px !important;">
       <h1 class="section__title">{{ _('Contest') }}</h1>
     </div>
+    <div style="padding: 0px 20px !important;">
     <div class="row" style="display: flex;
                             flex-wrap: wrap;">
       {%- for tdoc in tdocs -%}
-        <div class="medium-6 columns contest__card contest-type--{{ tdoc.rule }} {% if model.contest.isOngoing(tdoc, tsdoc) %}{{ 'live' }}{% elif model.contest.isUpcoming(tdoc) %}{{ 'ready' }}{% endif %}" style="padding: 0px 15px !important;">
+        <div class="medium-6 columns contest__card contest-type--{{ tdoc.rule }} {% if model.contest.isOngoing(tdoc, tsdoc) %}{{ 'live' }}{% elif model.contest.isUpcoming(tdoc) %}{{ 'ready' }}{% endif %}" style="padding: 0px 5px !important;">
           <div class="section" style="margin: 5px;
                       vertical-align: top;
                       box-shadow: none !important;
@@ -44,10 +45,10 @@
                     text-decoration: none !important; 
                     white-space: nowrap !important;">
                 <li>
-                  <a href="{{ url('contest_main', query={rule:tdoc.rule}) }}" class="contest-type-tag"><span class="icon icon-award"></span>{{ _(model.contest.RULES[tdoc.rule].TEXT) }}</a>
+                  <a href="{{ url('contest_main', query={rule:tdoc.rule}) }}" class="contest-type-tag">{{ _(model.contest.RULES[tdoc.rule].TEXT) }}</a>
                 </li>
                 {% if tdoc.rated %}
-                  <li class="contest-tag-rated"><span class="icon icon-star"></span>Rated</li>
+                  <li class="contest-tag-rated">Rated</li>
                 {% endif %}
                 <li>
                   <span class="icon icon-schedule--fill text-blue"></span> {{ contest.render_duration(tdoc) }} {{ _('hour(s)') }}
@@ -56,6 +57,7 @@
                   <span class="icon icon-user--multiple"></span> {{ tdoc['attend']|default(0) }}
                 </li>
               </ul>
+              <br/>
               <ul class="supplementary list training__progress" 
               style="display: inline-flex !important; 
                     align-items: center !important; 
@@ -94,7 +96,7 @@
           </div>
         </div>
       {%- endfor -%}
-    </div>
+    </div></div>
     <ul class="pager pager-bottom"><li>
       <a class="pager__item next link" href="{{ url('contest_main') }}">{{ _('More') }} ></a>
     </li></ul>

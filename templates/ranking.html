@@ -1,0 +1,177 @@
+{% extends "layout/basic.html" %}
+{% import "components/paginator.html" as paginator with context %}
+{% import "components/nothing.html" as nothing with context %}
+<!-- ⚡ 核心修复：引入缺失的 user 组件 -->
+{% import "components/user.html" as user with context %}
+{% block content %}
+<style>
+/* ==========================================================================
+   ⚡ 排名天梯榜现代通栏高级改色（完美同步比赛页）
+   ========================================================================== */
+
+/* 1. 外层卡片大容器基础配置：开启防溢出裁剪，保护系统原生圆角 */
+.section,
+div.section,
+.section__body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    overflow: hidden !important; /* 核心：防止直角表格破坏系统的卡片圆角 */
+}
+
+/* 2. 表格全局统一样式：彻底消除竖线和杂乱底色 */
+table.ranking-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #ffffff !important;
+}
+
+table.ranking-table tbody tr td {
+    padding: 14px 16px !important; /* 调大上下间距，更具有高级呼吸感 */
+    border-bottom: 1px solid #f1f5f9 !important; /* 极轻量的横向行底边框 */
+    border-right: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    vertical-align: middle !important;
+    font-size: 14px;
+    background: #ffffff !important; /* 强制背景为纯白，砍掉交替斑马纹 */
+}
+
+/* 3. 完美复刻比赛页：实现两端横向完全冲满的淡灰色表头 */
+table.ranking-table thead th {
+    padding: 12px 16px !important;
+    background-color: #f8fafc !important; /* 表头专属高级通栏淡灰底色 */
+    color: #475569 !important; /* 调深表头颜色，配合加粗显质感 */
+    font-size: 13px !important;
+    font-weight: 700 !important; /* ⚡ 强制字重拉满，加粗表头字体 */
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-left: none !important;
+}
+
+/* 4. 严格规范各列在水平方向上的分布比例与对齐 */
+table.ranking-table th.col--rank,
+table.ranking-table td.col--rank {
+    width: 70px !important;
+    min-width: 70px !important;
+    text-align: center !important; /* 序号完美居中 */
+    color: #64748b;
+}
+
+table.ranking-table th.col--user,
+table.ranking-table td.col--user {
+    width: auto !important; /* 用户名主列自动拉伸，留出宽裕空间 */
+    text-align: left !important;
+}
+
+/* 5. 纯白背景下的优雅悬停高亮交互 */
+table.ranking-table tbody tr:hover td {
+    background: #f8fafc !important; /* 鼠标经过时整行浮现淡淡的冷灰色 */
+}
+
+/* 可选微调：如果是当前登录用户自己的那一行，可以给他加一个极淡的标识（或者不需要就删掉） */
+.ranking-self-row td {
+    background: #f0fdf4 !important; /* 自己那一行微微泛绿，方便定位 */
+}
+table.ranking-table th.col--rank,
+table.ranking-table td.col--rank {
+    width: 60px !important;
+    min-width: 60px !important;
+    text-align: center !important; /* 排名序号依然保持居中对齐 */
+    color: #64748b;
+}
+
+table.ranking-table th.col--user,
+table.ranking-table td.col--user {
+    width: auto !important; /* 用户名主列独享弹性拉伸区间 */
+    text-align: left !important; /* 用户名保持左对齐 */
+}
+
+/* ⚡ 核心改动：右侧 4 列硬性数据全部强行向右看齐 (text-align: right) */
+table.ranking-table th.col--total-rp,
+table.ranking-table td.col--total-rp,
+table.ranking-table th.col--problem-rating,
+table.ranking-table td.col--problem-rating,
+table.ranking-table th.col--ac-count,
+table.ranking-table td.col--ac-count {
+    width: 130px !important;
+    min-width: 130px !important;
+    text-align: center !important; /* ⚡ 所有的积分和通过数展示全部靠右 */
+}
+
+/* ⚡ 细节优化：让最右侧的最后一列增加右侧 padding，防止文字死贴卡片边框 */
+table.ranking-table th.col--ac-count,
+table.ranking-table td.col--ac-count {
+    padding-right: 24px !important; 
+}
+</style>
+<div class="row">
+  <div class="medium-12 columns">
+    <div class="section">
+      <div class="section__body no-padding">
+        <div data-fragment-id="ranking">
+          {% if not udocs.length %}
+            {% if page == 1 %}
+              <blockquote class="note">{{ _('The ranking page is not updated realtime.') }}</blockquote>
+            {% endif %}
+          {{ nothing.render('Sorry, there are no users in this domain.') }}
+          {% else %}
+          
+          <!-- ⚡ 核心改造：扩展为 6 列的现代化终极天梯榜 -->
+          <table class="data-table ranking-table">
+            <thead>
+              <tr>
+                <th class="col--rank">{{ _('Rank') }}</th>
+                <th class="col--user">{{ _('Username') }}</th>
+                <th class="col--total-rp">{{ _('RP') }}</th>
+                {% for key, def in model.rp %}
+                  {% if not def.hidden %}
+                    <th class="col--problem-rating">{{ _('rpDetailText_' + key) }}</th>
+                  {% endif %}
+                {% endfor %}
+                <th class="col--ac-count">{{ _('Accept') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 当前登录用户自身排名行 -->
+              {% if handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
+              <tr class="ranking-self-row">
+                <td class="col--rank">{{ handler.user.rank|default('-') }}</td>
+                <td class="col--user">{{ user.render_inline(handler.user) }}</td>
+                <!-- ⚡ 对接当前用户自身的数据 -->
+                <td class="col--total-rp" style="font-weight: bold; color: #3b82f6;">{{ handler.user.rp|default(0)|round(0) }}</td>
+                {% for key, def in model.rp %}
+                  {% if not def.hidden %}
+                    <td class="col--problem-rating">{{ handler.user.rpInfo[key]|round if (handler.user.rpInfo|default({}))[key] else '-' }}</td>
+                  {% endif %}
+                {% endfor %}
+                <td class="col--ac-count" style="font-weight: 600; color: #16a34a;">{{ handler.user.nAccept|default(0) }}</td>
+              </tr>
+              {% endif %}
+              
+              <!-- 2. 全体用户排名循环列表 -->
+              {%- for udoc in udocs -%}
+              <tr>
+                <td class="col--rank">{{ (page - 1) * model.system.get('pagination.ranking') + loop.index }}</td>
+                <td class="col--user">{{ user.render_inline(udoc) }}</td>
+                <!-- ⚡ 总 RP：加粗显示，使用主题蓝强化核心排名属性 -->
+                <td class="col--total-rp" style="font-weight: bold; color: #3b82f6;">{{ udoc.rp|default(0)|round(0) }}</td>
+                {% for key, def in model.rp %}
+                  {% if not def.hidden %}
+                    <td class="col--problem-rating">{{ udoc.rpInfo[key]|round if udoc.rpInfo[key] else '-' }}</td>
+                  {% endif %}
+                {% endfor %}
+                <td class="col--ac-count" style="font-weight: 600; color: #16a34a;">{{ udoc.nAccept|default(0) }}</td>
+              </tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
+          
+          {{ paginator.render(page, upcount) }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

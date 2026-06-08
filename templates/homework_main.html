@@ -1,0 +1,202 @@
+{% extends "layout/basic.html" %}
+{% block content %}
+<style>
+/* 作业列表通用表格基础样式 */
+table.homework-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #ffffff !important;
+}
+
+table.homework-table thead th {
+    padding: 10px 16px !important;
+    color: #475569 !important; /* 调深表头颜色，配合加粗更显质感 */
+    font-size: 13px !important;
+    font-weight: 700 !important; /* ⚡ 强行改为 700 粗体 */
+    border-bottom: 1px solid #f1f5f9 !important;
+    border-right: none !important;
+    text-align: left;
+}
+
+table.homework-table tbody tr td {
+    padding: 10px 16px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    border-right: none !important;
+    vertical-align: middle !important;
+    font-size: 14px;
+}
+
+table.homework-table tbody tr {
+    background: #ffffff !important;
+    transition: background .15s ease;
+}
+
+table.homework-table tbody tr:hover {
+    background: #f8fafc !important;
+}
+
+/* 严格控制各列宽度与水平对齐，确保干净利落 */
+table.homework-table th.col--homework-start,
+table.homework-table td.col--homework-start { 
+    text-align: center !important;
+    width: 100px !important; 
+    min-width: 100px !important;
+    color: #64748b; 
+}
+
+table.homework-table th.col--homework-deadline,
+table.homework-table td.col--homework-deadline { 
+  text-align: center !important;
+    width: 100px !important; 
+    min-width: 100px !important;
+    color: #64748b; 
+}
+
+.col--homework-title { font-weight: bold; }
+.col--homework-title .homework-link { color: #3b82f6; text-decoration: none; }
+.col--homework-title .homework-link:hover { text-decoration: underline; }
+
+/* ⚡ 核心修复：只让数据行（tbody）里的状态列字号归零，消灭胶囊外面的多余点 */
+table.homework-table tbody tr td.col--homework-status { 
+    width: 100px !important; 
+    min-width: 100px !important;
+    font-size: 0 !important; 
+}
+
+/* 2. 作业名称列：不设固定宽度，使其作为主列自动拉伸，填满中间区域 */
+table.homework-table th.col--homework-title,
+table.homework-table td.col--homework-title {
+    width: auto !important;
+}
+
+/* 4. 状态列：从 100px 放大到 120px，保证状态胶囊居中或靠左显示时有安全边距 */
+table.homework-table tbody tr td.col--homework-status { 
+  text-align: center !important;
+    width: 160px !important; 
+    min-width: 160px !important;
+    font-size: 0 !important; 
+}
+table.homework-table thead th.col--homework-status {
+  text-align: center !important;
+    width: 160px !important; 
+    min-width: 160px !important;
+    font-size: 13px !important;
+    color: #94a3b8 !important;
+}
+
+
+/* 状态胶囊样式，保持不变 */
+.homework-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 4px 12px !important;
+    border-radius: 999px !important;
+    font-size: 11px !important; /* 确保胶囊自身文字正常 */
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.homework-badge--running { background: #3b82f6 !important; color: #ffffff !important; }
+.homework-badge--pending { background: #e0f2fe !important; color: #0369a1 !important; }
+.homework-badge--ended { background: #f1f5f9 !important; color: #94a3b8 !important; }
+
+</style>
+
+{{ set(UiContext, 'docs', calendar) }}
+<div class="row">
+  <div class="medium-12 columns">
+    <div class="section">
+      <div class="section__header">
+        <h1 class="section__title">{{ _('All Homeworks') }}</h1>
+        <div class="section__tools">
+          <!-- ⚡ 核心改动 1：移除了日历视图和列表视图的转换下拉框 -->
+          <form method="get" class="filter-form" name="filter-form">
+            <input type="text" class="inline compact textbox" name="q" value="{{ q }}" placeholder="{{ _('Search homeworks...') }}">
+            <select class="inline compact select" name="group">
+              <option value=""{% if not group %} selected{% endif %}>{{ _('All') }}</option>
+              {%- for g in groups -%}
+                <option value="{{ g }}"{% if group == g %} selected{% endif %}>{{ g }}</option>
+              {%- endfor -%}
+              {%- if not groups|length -%}
+                <option disabled>{{ _('No group available') }}</option>
+              {%- endif -%}
+            </select>
+            <button type="submit" class="compact button hasjs--hide">
+              {{ _('Search') }}
+            </button>
+          </form>
+        {% if handler.user.hasPerm(perm.PERM_CREATE_HOMEWORK) %}
+          <a class="compact button" href="{{ url('homework_create') }}">{{ _('Create Homework') }}</a>
+        {% endif %}
+        </div>
+      </div>
+      
+      <div class="section__body no-padding">
+      {% if not tdocs.length %}
+        {{ nothing.render('There is no homework so far ╰(*°▽°*)╯') }}
+      {% else %}
+        <table class="data-table homework-table" style="width: 100%; border-collapse: collapse; table-layout: fixed; background: transparent;">
+          
+            <thead>
+            <tr style="background-color: rgba(128, 128, 128, 0.04); border-bottom: 1px solid #e2e8f0;">
+              <!-- ⚡ 移除了内联的 opacity 和 font-weight，完全由 CSS 强力控制 -->
+              <th class="col--homework-start" style="text-align: center; opacity: 0.7; padding: 12px 8px;">{{ _('StartAt') }}</th>
+              <th class="col--homework-title" style="text-align: left; opacity: 0.7; padding: 12px 8px;">{{ _('Homework') }}</th>
+              <th class="col--homework-deadline" style="text-align: center; opacity: 0.7; padding: 12px 8px;">{{ _('Deadline') }}</th>
+              <th class="col--homework-status" style="text-align: center; padding: 12px 8px;">{{ _('Status') }}</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          {%- for tdoc in tdocs -%}
+            <tr>
+              <!-- ⚡ 核心改动 2：数据行第一列输出开始时间 -->
+              <td class="col--homework-start">
+                <span class="homework-date-text">
+                  {{ datetimeSpan(tdoc['beginAt'])|safe }}
+                </span>
+              </td>
+              
+              <!-- 第二列：作业名称 -->
+              <td class="col--homework-title">
+                <a class="homework-link" href="{{ url('homework_detail', tid=tdoc.docId) }}" data-emoji-enabled>
+                  {{ tdoc.title }}
+                </a>
+              </td>
+              
+              <!-- ⚡ 核心改动 2：数据行第三列输出截止时间 -->
+              <td class="col--homework-deadline">
+                <span class="homework-date-text">
+                  {% if model.contest.isExtended(tdoc) or model.contest.isDone(tdoc) %}
+                    {{ datetimeSpan(tdoc['endAt'])|safe }}
+                  {% else %}
+                    {{ datetimeSpan(tdoc['penaltySince'])|safe }}
+                  {% endif %}
+                </span>
+              </td>
+              
+              <!-- 第四列：状态 -->
+              <td class="col--homework-status">
+                {% set status_raw = model.contest.statusText(tdoc) %}
+                <span class="homework-badge 
+                  {% if status_raw == 'Underway' or status_raw == '进行中' %}homework-badge--running
+                  {% elif status_raw == 'Not Started' or status_raw == '未开始' %}homework-badge--pending
+                  {% else %}homework-badge--ended{% endif %}">
+                  {{ _(status_raw) }}
+                </span>
+              </td>
+            </tr>
+          {%- endfor -%}
+          </tbody>
+        </table>
+        
+        {{ paginator.render(page, tpcount, add_qs=qs) }}
+        <div name="calendar_entry"></div>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

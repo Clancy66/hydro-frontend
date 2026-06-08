@@ -1,0 +1,472 @@
+{% import "components/record.html" as record with context %}
+{% import "components/problem.html" as problem with context %}
+{% extends "layout/basic.html" %}
+{% block content %}
+<style>
+table.data-table td.col--status {
+    position: relative;
+    text-align: center;
+    padding: 0 !important;
+
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+}
+
+table.data-table th.col--status {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+}
+
+table.data-table td.col--status .icon,
+table.data-table td.col--status i {
+    font-size: 15px !important;
+}
+
+table.data-table th.col--status,
+table.data-table td.col--status {
+    border-right: 1px solid #eef2f7 !important;
+}
+.col--ac-tried {
+    width: 120px !important;
+}
+
+.hover-ac-container {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.ac-progress-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.ac-progress-bar {
+    width: 72px !important;
+    height: 8px !important;
+
+    background: #edf2f7 !important;
+
+    border-radius: 999px !important;
+    overflow: hidden !important;
+}
+
+.ac-progress-inner {
+    height: 100% !important;
+
+    background: #3b82f6 !important;
+
+    border-radius: 999px !important;
+
+    transition: width .2s ease;
+}
+
+.ac-percent-text {
+    font-size: 11px !important;
+    color: #94a3b8 !important;
+    line-height: 1;
+    width: 28px;
+}
+.col--problem-name .problem-tag,
+.col--problem-name .tag {
+    display: inline-flex !important;
+    align-items: center !important;
+
+    padding: 2px 10px !important;
+
+    border-radius: 999px !important;
+
+    background: #f3f4f6 !important;
+
+    color: #6b7280 !important;
+
+    border: none !important;
+
+    font-size: 11px !important;
+}
+.col--difficulty {
+    width: 56px !important;
+}
+
+.diff-badge {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    
+    /* ⚡ 核心修复 1：修正行高，防止字体字形被切边或产生像素级伪影 */
+    line-height: 1.4 !important; 
+    
+    /* ⚡ 核心修复 2：强制不换行，并裁剪掉任何可能溢出的文本像素尾巴 */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+}
+
+.diff--none {
+    background: #f1f5f9 !important;
+    color: #94a3b8 !important;
+    
+    /* ⚡ 核心修复 3：防止某些多余的空格或字符渲染，强制字间距与 letter-spacing 重置 */
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+}
+
+
+.diff--low {
+    background: #3b82f6 !important;
+}
+
+.diff--mid {
+    background: #f59e0b !important;
+}
+
+.diff--high {
+    background: #ef4444 !important;
+}
+
+table.data-table tbody tr td {
+    padding: 10px 8px !important;
+    vertical-align: middle !important;
+}
+
+table.data-table thead th {
+    padding: 12px 8px !important;
+}
+table.data-table tbody tr {
+    transition: background .15s ease;
+}
+
+table.data-table tbody tr:hover {
+    background: #fafcff;
+}
+.record-status--text {
+    position: absolute !important;
+
+    width: 16px !important;
+    height: 16px !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    transform: translate(-50%, -50%) !important;
+
+    font-size: 0 !important;
+    color: transparent !important;
+
+    z-index: 2;
+}
+.hover-ac-container {
+    position: relative !important;
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+}
+.ac-tooltip {
+    position: absolute !important;
+
+    left: 50% !important;
+    bottom: calc(100% + 8px) !important;
+
+    transform: translateX(-50%) translateY(4px) !important;
+
+    padding: 4px 8px !important;
+
+    background: #1f2937 !important;
+    color: white !important;
+
+    border-radius: 6px !important;
+
+    font-size: 11px !important;
+    font-weight: 500 !important;
+
+    white-space: nowrap !important;
+
+    pointer-events: none !important;
+
+    opacity: 0 !important;
+    visibility: hidden !important;
+
+    transition:
+        opacity .15s ease,
+        transform .15s ease,
+        visibility .15s ease !important;
+
+    z-index: 9999 !important;
+}
+.ac-tooltip::after {
+    content: "";
+
+    position: absolute;
+
+    top: 100%;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    border-width: 4px;
+
+    border-style: solid;
+
+    border-color:
+        #1f2937
+        transparent
+        transparent
+        transparent;
+}
+.hover-ac-container:hover .ac-tooltip {
+    opacity: 1 !important;
+
+    visibility: visible !important;
+
+    transform: translateX(-50%) translateY(0) !important;
+}
+
+td.col--ac-tried {
+    overflow: visible !important;
+}
+
+.problem__tag {
+    margin-right: 4px;
+}
+
+.problem__tag-link {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 10px;
+    height: 20px;
+
+    border-radius: 999px;
+
+    background: #f5f7fa;
+    border: 1px solid #e5e7eb;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    text-decoration: none;
+}
+
+.problem__tag-link:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+.col--status {
+    width: 54px !important;
+}
+
+.col--difficulty {
+    width: 72px !important;
+}
+
+.col--ac-tried {
+    width: 110px !important;
+}
+/* ⚡ 核心修复：只让数据行（tbody）里的难度列字号归零，消灭胶囊外面的裸露点 */
+table.data-table tbody tr td.col--difficulty {
+    font-size: 0 !important;
+}
+
+/* ⚡ 确保胶囊内部的 N/A 和数字字号不受影响，依然正常显示 */
+table.data-table tbody tr td.col--difficulty .diff-badge {
+    font-size: 11px !important;
+}
+
+/* 1. 移除状态列和所有单元格的右侧垂直分割线 */
+table.data-table th.col--status,
+table.data-table td.col--status,
+table.data-table th,
+table.data-table td {
+    border-right: none !important;
+}
+
+/* 2. 统一表头样式：调浅文字颜色，增加间距，添加底部细边框 */
+table.data-table thead th {
+    padding: 14px 12px !important;
+    color: #94a3b8 !important; /* 浅灰色表头文字 */
+    font-weight: 500 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    background: transparent !important;
+}
+
+/* 3. 统一数据行样式：增大上下内边距（更开阔），添加底部轻量分割线 */
+table.data-table tbody tr td {
+    padding: 16px 12px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* 4. 调整首尾列的边缘内边距，使其与表格容器两端完美对齐 */
+table.data-table tr th:first-child,
+table.data-table tr td:first-child {
+    padding-left: 16px !important;
+}
+table.data-table tr th:last-child,
+table.data-table tr td:last-child {
+    padding-right: 16px !important;
+}
+
+/* 5. 优化悬停效果：使用更柔和的灰色背景，与比赛列表保持一致 */
+table.data-table tbody tr:hover {
+    background: #f8fafc !important;
+}
+/* 1. 统一背景色：取消交替背景，全部变为纯白，并微调悬停颜色 */
+table.data-table tbody tr {
+    background: #ffffff !important;
+}
+table.data-table tbody tr:hover {
+    background: #f8fafc !important;
+}
+
+/* 2. 压缩行高：减小上下内边距，让表格更紧凑 */
+table.data-table tbody tr td {
+    padding: 10px 12px !important; 
+}
+table.data-table thead th {
+    padding: 10px 12px !important;
+}
+
+/* 3. 核心：实现 标签、通过率、难度 在水平方向上精准对齐 */
+/* 统一各列的宽度，防止因为内容长短不一导致错位 */
+table.data-table th.col--tags,
+table.data-table td.col--tags {
+    width: 120px !important;
+    min-width: 120px !important;
+}
+
+table.data-table th.col--ac-tried,
+table.data-table td.col--ac-tried {
+    width: 130px !important;
+    min-width: 130px !important;
+}
+
+table.data-table th.col--difficulty,
+table.data-table td.col--difficulty {
+    width: 70px !important;
+    min-width: 70px !important;
+}
+
+/* 4. 确保容器内部组件在其列内水平居中/左对齐（根据比赛列表风格统一靠左或居中） */
+.hover-ac-container {
+    justify-content: flex-start !important; /* 通过率进度条靠左对齐，与表头对齐 */
+    width: auto !important;
+}
+
+.diff-badge {
+    margin: 0 !important; /* 确保难度胶囊不被其它外边距干扰 */
+}
+
+</style>
+
+  <div class="row">
+    <div class="medium-9 columns">
+      <div class="section display-mode">
+        <div class="section__body no-padding">
+          <form method="get" id="searchForm" action="{{ url('problem_main') }}">
+            <div class="search">
+              <input name="q" type="text" value="{{ qs }}" placeholder="{{ _('Search') }}">
+              {% include "partials/problem_stat.html" %}
+              <select name="sort" class="search-sort">
+                {%- for sortType in ["default", "recent"] -%}
+                  <option value="{{ sortType }}" {{ "selected" if sort == sortType else "" }}>{{ _('sort::' + sortType) }}</option>
+                {%- endfor -%}
+              </select>
+              <button type="submit">
+                <span class="icon icon-search"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="section__body no-padding">
+          {% include "partials/problem_list.html" %}
+        </div>
+      </div>
+    </div>
+    <div class="medium-3 columns">
+      {% if handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
+        <div class="section side nojs--hide">
+          <ol class="menu">
+            <a href="javascript:;" class="menu__link edit-mode-hide" name="enter-edit-mode">
+              <span class="icon icon-edit"></span>
+              {{ _('Enter Edit Mode') }}
+            </a>
+            <a href="javascript:;" class="menu__link display-mode-hide" name="leave-edit-mode">
+              <span class="icon icon-edit"></span>
+              {{ _('Leave Edit Mode') }}
+            </a>
+            <div id="problem_selection" class="display-mode-hide"></div>
+            {% if handler.user.hasPerm(perm.PERM_EDIT_PROBLEM) %}
+              <a href="javascript:;" class="menu__link display-mode-hide" name="hide_selected_problems">
+                <span class="icon icon-close"></span>
+                {{ _('Hide Selected') }}
+              </a>
+              <a href="javascript:;" class="menu__link display-mode-hide" name="unhide_selected_problems">
+                <span class="icon icon-check"></span>
+                {{ _('Unhide Selected') }}
+              </a>
+              <a href="javascript:;" class="menu__link display-mode-hide" name="download_selected_problems">
+                <span class="icon icon-download"></span>
+                {{ _('Download Selected') }}
+              </a>
+              <a href="javascript:;" class="menu__link display-mode-hide" name="delete_selected_problems">
+                <span class="icon icon-delete"></span>
+                {{ _('Remove Selected') }}
+              </a>
+            {% endif %}
+            <a href="javascript:;" class="menu__link display-mode-hide" name="copy_selected_problems">
+              <span class="icon icon-copy"></span>
+              {{ _('Copy Selected') }}
+            </a>
+          </ol>
+        </div>
+      {% endif %}
+      {% if handler.user.hasPerm(perm.PERM_CREATE_PROBLEM) %}
+        <div class="section side">
+          <div class="section__header">
+            <h1 class="section__title">{{ _('Create Problem') }}</h1>
+          </div>
+          <ol class="menu">
+            {%- for item in ui.getNodes('ProblemAdd') -%}
+              <a href="{{ url(item.name, item.args) }}" class="menu__link">
+                <span class="icon icon-{{ item.args.icon|default('add') }}"></span>
+                {{ _(item.args.text) }}
+              </a>
+            {%- endfor -%}
+          </ol>
+          <div class="section__body">
+            <div class="typo supplementary">
+              <p>{{ _('You have permission to create problems for this domain.') }}</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      <div class="section side">
+        <div class="section__header edit-mode-hide">
+          <h1 class="section__title">{{ _('Categories') }}</h1>
+        </div>
+        <div class="section__body">
+          {% include "partials/category.html" %}
+        </div>
+        <div class="section__body edit-mode-hide">
+          {% include "partials/problem_lucky.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

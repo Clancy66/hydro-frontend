@@ -256,6 +256,13 @@ export async function apply(ctx: Context) {
     ctx.Route('training_category_edit', '/category', TrainingCategoryEditHandler);
 
     ctx.i18n.load('zh', {
+        'Live Contests': '正在进行的比赛',
+        'Upcoming Contests': '即将开始的比赛',
+        'History Contests': '历史比赛',
+        'StartAt': '开始于',
+        'Attend': '人数',
+        'isEnrolled': '参赛状态',
+        '{0} Contests': '{0} 比赛',
         'Training Plans Category': '训练计划类别',
         'Manage Training Category': '管理训练类别',
         'View Training Plan': '查看训练计划',

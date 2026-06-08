@@ -1,5 +1,120 @@
 {% extends "layout/basic.html" %}
 {% block content %}
+<style>
+/* 训练状态专用高级胶囊效果 */
+.training-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 4px 12px !important;
+    border-radius: 999px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+/* 完美通关：轻量高级绿 */
+.training-badge--success {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+/* 正在刷题进行中：科技蓝 */
+.training-badge--running {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+/* 未报名：极简浅灰 */
+.training-badge--pending {
+    background: #f1f5f9 !important;
+    color: #94a3b8 !important;
+}
+
+/* 清理训练页可能因为旧框架残留的 .icon 或伪元素点 */
+table.training-table tbody tr td.col--training-status i,
+table.training-table tbody tr td.col--training-status .icon {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+/* ⚡ 核心改动 1：重新洗牌列宽分配，把 60% 以上的空间疯狂让给标题列 */
+table.training-table th.col--training-title,
+table.training-table td.col--training-title {
+    width: auto !important; /* 不设固定宽度，任其无限向右拉伸 */
+    padding-left: 24px !important; /* 拉大左侧内边距，呼应比赛列表 */
+}
+
+/* ⚡ 核心改动 2：压缩右侧三列的固定宽度，逼迫它们整体集体向右侧靠拢 */
+table.training-table th.col--training-progress,
+table.training-table td.col--training-progress {
+    width: 200px !important; 
+    min-width: 200px !important;
+    text-align: center !important; /* 表头和数据单元格全部居中 */
+}
+
+table.training-table th.col--training-participants,
+table.training-table td.col--training-participants {
+    width: 90px !important; 
+    min-width: 90px !important;
+    text-align: center !important;
+}
+
+table.training-table th.col--training-status,
+table.training-table td.col--training-status {
+    width: 130px !important; 
+    min-width: 130px !important;
+    text-align: center !important;
+    padding-right: 24px !important; /* 拉大右侧边缘内边距，完美收尾 */
+}
+
+/* ⚡ 核心改动 3：强制让进度条 Flex 容器在单元格内部绝对水平居中 */
+table.training-table td.col--training-progress .hover-ac-container {
+    display: inline-flex !important; /* 改为 inline-flex 才能完美受 text-align: center 控制 */
+    justify-content: center !important;
+    align-items: center !important;
+    width: auto !important;
+}
+/* ⚡ 1. 强行把圆角控制权拿回来：通知浏览器大卡片四角必须严格按照系统圆角裁剪 */
+.section,
+div.section,
+.section__body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    
+    /* ⚡ 核心修复：开启强制裁剪，防止内部直角表格把卡片的圆角强行撑直 */
+    overflow: hidden !important; 
+}
+
+/* ⚡ 2. 彻底抹平表头和数据行的灰色，统一为纯白背景 */
+table.training-table,
+table.training-table thead,
+table.training-table thead tr,
+table.training-table thead th,
+table.training-table tbody tr,
+table.training-table tbody tr td {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important; /* 移除任何可能导致视觉直角边缘的内阴影 */
+}
+
+/* ⚡ 3. 完美保留表头下方的极细分割线，去除任何多余的直角边框 */
+table.training-table thead th {
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* ⚡ 4. 保持纯白底色上的优雅悬停高亮 */
+table.training-table tbody tr:hover,
+table.training-table tbody tr:hover td {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+}
+
+</style>
 <div class="row">
   <div class="medium-9 columns">
     <div class="section">
@@ -53,71 +168,76 @@
       {{ nothing.render('Sorry, there are no training plans.') }}
     </div>
     {% else %}
-    <div class="row" style="display: flex;
-                            flex-wrap: wrap;">
+    <div class="section" style="margin-top: 20px;">
+  <div class="section__body no-padding">
+    <table class="data-table training-table" style="width: 100%; border-collapse: collapse; table-layout: fixed; background: transparent;">
+      <thead>
+        <tr style="background-color: rgba(128, 128, 128, 0.04); border-bottom: 1px solid #e2e8f0;">
+          <th class="col--training-title" style="text-align: left; padding: 12px 16px;">{{ _('Training') }}</th>
+          <th class="col--training-progress" style="text-align: center; padding: 12px 16px;">{{ _('Progress') }}</th>
+          <th class="col--training-participants" style="text-align: center; padding: 12px 16px;">{{ _('Enrolled') }}</th>
+          <th class="col--training-status" style="text-align: center; padding: 12px 16px;">{{ _('Status') }}</th>
+        </tr>
+      </thead>
+      <tbody>
       {%- for tdoc in tdocs -%}
-        <div class="medium-4 columns">
-        <div class="section">
-          <div class="media__left middle">
-            <div class="training__participants numbox">
-              <div class="numbox__num large">{{ tdoc.attend|default(0) }}</div>
-              <div class="numbox__text">{{ _('Enrolled') }}</div>
+        <!-- 后端数据前置提取 -->
+        {% set total_problems = model.training.getPids(tdoc.dag)|length %}
+        {% set done_problems = tsdict[tdoc.docId]['donePids']|length if tsdict[tdoc.docId] else 0 %}
+        <!-- ⚡ 核心改动：计算百分比 -->
+        {% set percent = (done_problems / total_problems * 100)|int if total_problems else 0 %}
+        
+        <tr>
+          <!-- 1. 训练单名称 -->
+          <td class="col--training-title">
+            <a class="training-link" href="{{ url('training_detail', tid=tdoc.docId) }}" data-emoji-enabled style="font-weight: bold; color: #3b82f6; text-decoration: none;">
+              {{ tdoc.title }}
+            </a>
+            <div class="training-subtitle" style="font-size: 12px; color: #94a3b8; margin-top: 4px; font-weight: normal;">
+              {{ _('{0} sections').format(tdoc['dag']|length) }} · {{ _('{0} problems').format(total_problems) }}
             </div>
-          </div>
-          <div class="media__body middle">
-            <h1 class="training__title" style="gap: 10px !important; 
-                                             padding: 10px 10px 0px 0px !important; 
-                                             align-items: center !important;
-                                             width: 100% !important;">
-              <a href="{{ url('training_detail', tid=tdoc.docId) }}" 
-                      data-emoji-enabled 
-                      style="display:-webkit-box;
-                      -webkit-box-orient:vertical;
-                      -webkit-line-clamp:2;
-                      overflow:hidden;
-                      text-overflow:ellipsis;
-                      line-height:1.4em;
-                      height:2.8em; /* 固定两行高度 */
-                      min-height: 2.8em;  /* 防止被覆盖 */
-                      word-break:break-word;">{{ tdoc.title }}</a></h1>
-            <ul class="supplementary list training__progress" 
-              style="display: inline-flex !important; 
-                    align-items: center !important; 
-                    justify-content: center !important; 
-                    width: auto !important; 
-                    min-width: 0 !important; 
-                    height: auto !important; 
-                    padding: 0px 0px 6px 0px !important; 
-                    text-decoration: none !important; 
-                    white-space: nowrap !important;"><li>
-              <span class="icon icon-flag text-blue"></span> {{ _('{0} sections').format(tdoc['dag']|length) }}, {{ _('{0} problems').format(model.training.getPids(tdoc.dag)|length) }}
-            </li></ul>
-            <ul class="supplementary list training__progress" 
-              style="display: inline-flex !important; 
-                    align-items: center !important; 
-                    justify-content: center !important; 
-                    width: auto !important; 
-                    min-width: 0 !important; 
-                    height: auto !important; 
-                    padding: 0px 0px 6px 0px !important; 
-                    text-decoration: none !important; 
-                    white-space: nowrap !important;"><li>
-              {% if tsdict[tdoc.docId]['enroll'] %}
-                {% if not tsdict[tdoc.docId]['done'] %}
-                  <span class="icon training-status--icon progress"></span>
-                  <span class="training-status--text progress">{{ _('Completed') }} {{ tsdict[tdoc.docId]['donePids']|length }} / {{ model.training.getPids(tdoc.dag)|length }}</span>
-                {% else %}
-                  <span class="icon training-status--icon done"></span>
-                  <span class="training-status--text done">{{ _('Completed') }} {{ tsdict[tdoc.docId]['donePids']|length }} / {{ model.training.getPids(tdoc.dag)|length }}</span>
-                {% endif %}
-              {% elif handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
-                <span class="icon training-status--icon outside"></span> <span class="training-status--text outside">{{ _('Not Enrolled') }}</span>
+          </td>
+          
+          <!-- 2. 进度条列（改造为纯正百分比格式） -->
+          <td class="col--training-progress">
+            <div class="hover-ac-container" style="display: flex; align-items: center; gap: 8px;">
+              <div class="ac-progress-bar" style="width: 100px; height: 8px; background: #edf2f7; border-radius: 999px; overflow: hidden;">
+                <div class="ac-progress-inner" style="width: {{ percent }}%; height: 100%; background: {% if tsdict[tdoc.docId]['done'] %}#22c55e{% else %}#3b82f6{% endif %}; border-radius: 999px;"></div>
+              </div>
+              <!-- ⚡ 文字展示改成了百分比格式 -->
+              <span class="ac-percent-text" style="font-size: 11px; color: #94a3b8; width: 32px;">
+                {{ percent }}%
+              </span>
+            </div>
+          </td>
+          
+          <!-- 3. 已报名人数 -->
+          <td class="col--training-participants" style="text-align: center; color: #475569; font-weight: 600;">
+            {{ tdoc.attend|default(0) }}
+          </td>
+          
+          <!-- 4. ⚡ 核心改动：完美替换原生杂乱图标，改为纯正的高颜值胶囊效果 -->
+          <td class="col--training-status" style="text-align: center;">
+            {% if tsdict[tdoc.docId]['enroll'] %}
+              {% if tsdict[tdoc.docId]['done'] %}
+                <!-- 已完成：绿色胶囊 -->
+                <span class="training-badge training-badge--success">{{ _('Completed') }}</span>
+              {% else %}
+                <!-- 进行中：蓝色胶囊 -->
+                <span class="training-badge training-badge--running">{{ _('In Progress') }}</span>
               {% endif %}
-            </li></ul>
-          </div>
-        </div></div>
+            {% else %}
+              <!-- 未报名/未加入：灰色胶囊 -->
+              <span class="training-badge training-badge--pending">{{ _('Not Enrolled') }}</span>
+            {% endif %}
+          </td>
+        </tr>
       {%- endfor -%}
-    </div>
+      </tbody>
+    </table>
+  </div>
+</div>
+
     {% endif %}
   </div>
   <div class="large-3 columns">
@@ -135,31 +255,6 @@
           <div class="typo supplementary">
             <p>{{ _('You can create your own training plans and share them with others.') }}</p>
           </div>
-        </div>
-      </div>
-    {% endif %}
-    {% if handler.user.hasPriv(PRIV.PRIV_USER_PROFILE) %}
-      <div class="section side">
-        <div class="section__header">
-          <h1 class="section__title">{{ _('Enrolled') }}</h1>
-        </div>
-        <div class="section__body">
-          <ol class="my secondary training__list">
-            {%- for tid, tsdoc in tsdict -%}
-              {% if tsdoc['enroll'] %}
-                {% set progress = (100 * (tsdoc['donePids']|length) / (model.training.getPids(tdict[tsdoc['docId']].dag)|length))|round|int %}
-                <li class="training__item"><div class="media">
-                  <div class="media__left">
-                    <span class="icon training-status--icon {% if tsdoc['done'] %}done{% else %}progress{% endif %}"></span>
-                  </div>
-                  <div class="media__body">
-                    <h1 class="training__title"><a href="{{ url('training_detail', tid=tsdoc.docId) }}" data-emoji-enabled>{{ tdict[tsdoc['docId']]['title'] }}</a></h1>
-                    <div class="supplementary training__progress"><div class="training__progress-bar"><div class="training__progress-track" style="width:{{ progress }}%;"></div></div> {{ _('Complete') }} {{ tsdoc['donePids']|length }} / {{model.training.getPids(tdict[tsdoc['docId']].dag)|length }}</div>
-                  </div>
-                </div></li>
-              {% endif %}
-            {%- endfor -%}
-          </ol>
         </div>
       </div>
     {% endif %}
