@@ -142,22 +142,19 @@ table.training-table thead th {
 table.training-table tbody tr td {
     padding: 5px 5px !important; /* 确保第一行和后续所有行的间距完全一致 */
 }
-/* 强制重置表格所有定位属性 */
-.ranking-table,
-.ranking-table thead,
-.ranking-table thead tr,
-.ranking-table thead th,
-.ranking-table tbody,
-.ranking-table tbody tr {
-    position: static !important;
-    top: auto !important;
-    bottom: auto !important;
+/* 强制重置 - 使用更具体的选择器链 */
+body div[data-fragment-id="ranking"] .data-table.ranking-table thead,
+body div[data-fragment-id="ranking"] .data-table.ranking-table thead tr,
+body div[data-fragment-id="ranking"] .data-table.ranking-table thead th {
+    position: relative !important;
+    top: 0 !important;
     transform: none !important;
+    z-index: auto !important;
 }
 
-/* 确保第一行正常显示 */
-.ranking-table tbody tr:first-child {
-    margin-top: 0 !important;
+/* 确保表头不会覆盖第一行数据 */
+body div[data-fragment-id="ranking"] .data-table.ranking-table tbody tr:first-child td {
+    padding-top: 12px !important;
 }
 </style>
 
