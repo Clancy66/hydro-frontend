@@ -95,3 +95,21 @@
   {{ paginator.render(page, ppcount, add_qs=utils.buildQueryString(q=qs, sort='' if sort == 'default' else sort)) }}
 {% endif %}
 </div>
+<script>
+document.addEventListener('click', function (e) {
+
+    const btn = e.target.closest('.toggle-tag');
+    if (!btn) return;
+
+    const table = document.querySelector('.data-table');
+    if (!table) return;
+
+    const hidden = table.classList.toggle('hide-problem-tag');
+
+    // 强制以 DOM 状态为准
+    const showText = btn.dataset.showText;
+    const hideText = btn.dataset.hideText;
+
+    btn.textContent = hidden ? showText : hideText;
+});
+</script>

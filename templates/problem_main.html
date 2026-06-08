@@ -3,6 +3,11 @@
 {% extends "layout/basic.html" %}
 {% block content %}
 <style>
+table.data-table {
+    position: relative;
+    z-index: 1;
+}
+
 table.data-table td.col--status {
     position: relative;
     text-align: center;
@@ -42,6 +47,9 @@ table.data-table td.col--status {
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
+
+    position: relative;
+    z-index: 2;
 }
 
 .ac-progress-bar {
@@ -231,7 +239,7 @@ table.data-table tbody tr:hover {
     width: 100% !important;
 }
 .ac-tooltip {
-    position: absolute !important;
+    position: absolute;
 
     left: 50% !important;
     bottom: calc(100% + 8px) !important;
