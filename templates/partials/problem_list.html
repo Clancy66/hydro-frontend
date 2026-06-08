@@ -120,17 +120,9 @@ document.addEventListener('DOMContentLoaded', function() {
           {% if diff_raw == _('(None)') or diff_text == '' or diff_text == '(None)' or diff_text == '无' %}
             <span class="diff-badge diff--none">{{ _('(None)') }}</span>
           {% else %}
-            {% set diff_class = 'diff--low' %}
-            {% if diff_text|int > 0 or diff_text == '0' %}
-              {% set diff_num = diff_text|int %}
-              {% if diff_num <= 3 %}
-                {% set diff_class = 'diff--low' %}   {# 1~3 简单 #}
-              {% elif diff_num <= 7 %}
-                {% set diff_class = 'diff--mid' %}   {# 4~7 中等 #}
-              {% else %}
-                {% set diff_class = 'diff--high' %}  {# 8~10 困难 #}
-              {% endif %}
-            {% endif %}
+            {% set diff_num = diff_text|int %}
+            {# 10级难度直接使用数字作为CSS类名 #}
+            {% set diff_class = 'diff--' + diff_num|string %}
             <span class="diff-badge {{ diff_class }}">{{ diff_raw }}</span>
           {% endif %}
         </td>

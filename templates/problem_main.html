@@ -91,18 +91,26 @@ table.data-table td.col--status {
     width: 56px !important;
 }
 
+/* ==========================================================================
+   难度10级配色（参考洛谷）
+   ========================================================================== */
+
 .diff-badge {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    min-width: 24px;
-    height: 22px;
+    min-width: 32px;
+    height: 24px;
     padding: 0 10px;
     border-radius: 999px;
     font-size: 11px;
     font-weight: 700;
     color: #fff;
-    
+    line-height: 1.4 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+
     /* ⚡ 核心修复 1：修正行高，防止字体字形被切边或产生像素级伪影 */
     line-height: 1.4 !important; 
     
@@ -121,17 +129,64 @@ table.data-table td.col--status {
     word-spacing: 0 !important;
 }
 
-
-.diff--low {
-    background: #3b82f6 !important;
+/* 1级：入门 - 绿色 */
+.diff--1 {
+    background: #52c41a !important;
+    color: #fff !important;
 }
 
-.diff--mid {
-    background: #f59e0b !important;
+/* 2级：简单 - 浅绿色 */
+.diff--2 {
+    background: #7ec850 !important;
+    color: #fff !important;
 }
 
-.diff--high {
-    background: #ef4444 !important;
+/* 3级：中等偏易 - 青色 */
+.diff--3 {
+    background: #5c7c8f !important;
+    color: #fff !important;
+}
+
+/* 4级：中等 - 蓝色 */
+.diff--4 {
+    background: #3498db !important;
+    color: #fff !important;
+}
+
+/* 5级：中等偏难 - 橙黄色 */
+.diff--5 {
+    background: #f39c12 !important;
+    color: #fff !important;
+}
+
+/* 6级：困难 - 橙色 */
+.diff--6 {
+    background: #e67e22 !important;
+    color: #fff !important;
+}
+
+/* 7级：很难 - 橙红色 */
+.diff--7 {
+    background: #e84118 !important;
+    color: #fff !important;
+}
+
+/* 8级：非常难 - 红色 */
+.diff--8 {
+    background: #e74c3c !important;
+    color: #fff !important;
+}
+
+/* 9级：极难 - 深红色 */
+.diff--9 {
+    background: #c0392b !important;
+    color: #fff !important;
+}
+
+/* 10级：地狱 - 紫色/黑色渐变 */
+.diff--10 {
+    background: linear-gradient(135deg, #8e44ad 0%, #2c3e50 100%) !important;
+    color: #fff !important;
 }
 
 table.data-table tbody tr td {
