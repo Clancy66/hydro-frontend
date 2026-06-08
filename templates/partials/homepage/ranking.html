@@ -77,7 +77,20 @@ table.home-ranking-table td.col--ac-count {
 table.home-ranking-table tbody tr:hover td {
     background: #f8fafc !important;
 }
-
+/***** 徽章样式 *********/
+.home-ranking-table td.col--user .user-profile-badge,
+.home-ranking-table td.col--user span:not(.user-profile-link) {
+    display: inline-block !important;
+    padding: 4px 12px !important;
+    border-radius: 999px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: white !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
+    margin-left: 8px !important;
+    vertical-align: middle !important;
+}
 </style>
   <div class="section homepage-ranking-section">
     <div class="section__header">
@@ -98,7 +111,7 @@ table.home-ranking-table tbody tr:hover td {
             {% set udoc = udict[uid] %}
             <tr>
               <td class="col--rank">{{ loop.index }}</td>
-              <td class="col--user">{{ user.render_inline(udoc, levelbadge=false) }}</td>
+              <td class="col--user">{{ user.render_inline(udoc, levelbadge=true) }}</td>
               <td class="col--total-rp" style="font-weight: bold; color: #3b82f6;">{{ udoc.rp|default(0)|round(0) }}</td>
               <td class="col--ac-count" style="font-weight: 600; color: #16a34a;">{{ udoc.nAccept|default(0) }}</td>
             </tr>
