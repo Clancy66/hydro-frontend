@@ -112,8 +112,7 @@
 </script>
 
 <div class="row">
-  {% if handler.user.hasPerm(perm.PERM_CREATE_CONTEST) %}
-  <div class="medium-9 columns">
+  <div class="{% if handler.user.hasPerm(perm.PERM_CREATE_CONTEST) %}medium-9{% else %}medium-12{% endif %} columns">
 
     <!-- 1. 正在进行的比赛 -->
     <div class="section contest-panel" style="margin-bottom: 20px;">
@@ -277,175 +276,12 @@
 
   </div>
   <div class="medium-3 columns">
+  {% if handler.user.hasPerm(perm.PERM_CREATE_CONTEST) %}
     <div class="section side">
       <div class="section__header"><h1 class="section__title">{{ _('Create Contest') }}</h1></div>
       <div class="section__body"><p><a href="{{ url('contest_create') }}" class="expanded primary button">{{ _('Create a contest') }}</a></p></div>
     </div>
-  </div>
-  {% else %}
-  <div class="medium-12 columns">
-
-    <!-- 1. 正在进行的比赛 -->
-    <div class="section contest-panel" style="margin-bottom: 20px;">
-      <div class="section__header">
-        <h1 class="section__title" style="color: #2ecc71;"><span style="display:inline-block; width:8px; height:8px; background:#2ecc71; border-radius:50%; margin-right:8px; vertical-align:middle;"></span>{{ _('Live Contests') }}</h1>
-      </div>
-      <div class="section__body no-padding">
-        <table class="data-table" style="width: 100%; border-collapse: collapse; table-layout: fixed; background: transparent;">
-          <colgroup>
-            <col style="width: 15%;"><col style="width: 25%;"><col style="width: 12%;"><col style="width: 13%;"><col style="width: 13%;"><col style="width: 14%;"><col style="width: 8%;">
-          </colgroup>
-          <thead>
-            <tr style="background-color: rgba(128, 128, 128, 0.08); border-bottom: 2px solid rgba(128, 128, 128, 0.2);">
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('StartAt') }}</th>
-              <th style="text-align: left; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Contest') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Duration') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Rule') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Status') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('isEnrolled') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Attend') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-          {%- for tdoc in tdocs -%}
-            {% if model.contest.isOngoing(tdoc, tsdoc) %}
-              <tr class="data-row" style="background: transparent;">
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; color: inherit; opacity: 0.85;">{{ datetimeSpan(tdoc['beginAt'], false, 'YYYY-MM-DD')|safe }}</td>
-                <td class="col--title" style="width: 26%; text-align: left; vertical-align: middle; padding: 14px 8px; font-size: 14px; font-weight: bold; word-break: break-all;"><a href="{{ url('contest_detail', tid=tdoc.docId) }}" style="text-decoration: none; color: #3498db;">{{ tdoc.title }}</a></td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; color: inherit; opacity: 0.85;">{{ contest.render_duration(tdoc) }} h</td>
-                <td class="col--rule contest-type--{{ tdoc.rule }}" style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;"><p class="contest-type-tag" style="display: inline-block; text-decoration: none; font-weight: bold;">{{ _(model.contest.RULES[tdoc.rule].TEXT) }}</p></td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;"><span class="custom-status-badge" style="background-color: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2) !important;">{{ _('Live') }}</span></td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;">
-                  {% if tsdict[tdoc.docId].attend %}
-                    <span class="custom-status-badge" style="background-color: rgba(46, 204, 113, 0.15); color: #2ecc71;">{{ _('Attended') }}</span>
-                  {% else %}
-                    <span class="custom-status-badge" style="background-color: rgba(128, 128, 128, 0.15); color: inherit; opacity: 0.7; font-weight: normal !important;">{{ _('Not Attended') }}</span>
-                  {% endif %}
-                </td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; font-weight: bold; color: inherit;">{{ tdoc['attend']|default(0) }}</td>
-              </tr>
-            {% endif %}
-          {%- endfor -%}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- 2. 未来的比赛 -->
-    <div class="section contest-panel" style="margin-bottom: 20px;">
-      <div class="section__header">
-        <h1 class="section__title" style="color: #3498db;"><span style="display:inline-block; width:8px; height:8px; background:#3498db; border-radius:50%; margin-right:8px; vertical-align:middle;"></span>{{ _('Upcoming Contests') }}</h1>
-      </div>
-      <div class="section__body no-padding">
-        <table class="data-table" style="width: 100%; border-collapse: collapse; table-layout: fixed; background: transparent;">
-          <colgroup>
-            <col style="width: 15%;"><col style="width: 25%;"><col style="width: 12%;"><col style="width: 13%;"><col style="width: 13%;"><col style="width: 14%;"><col style="width: 8%;">
-          </colgroup>
-          <thead>
-            <tr style="background-color: rgba(128, 128, 128, 0.08); border-bottom: 2px solid rgba(128, 128, 128, 0.2);">
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('StartAt') }}</th>
-              <th style="text-align: left; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Contest') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Duration') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Rule') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Status') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('isEnrolled') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Attend') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-          {%- for tdoc in tdocs -%}
-            {% if model.contest.isUpcoming(tdoc) %}
-              <tr class="data-row" style="background: transparent;">
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; color: inherit; opacity: 0.85;">{{ datetimeSpan(tdoc['beginAt'], false, 'YYYY-MM-DD')|safe }}</td>
-                <td class="col--title" style="width: 26%; text-align: left; vertical-align: middle; padding: 14px 8px; font-size: 14px; font-weight: bold; word-break: break-all;"><a href="{{ url('contest_detail', tid=tdoc.docId) }}" style="text-decoration: none; color: #3498db;">{{ tdoc.title }}</a></td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; color: inherit; opacity: 0.85;">{{ contest.render_duration(tdoc) }} h</td>
-                <td class="col--rule contest-type--{{ tdoc.rule }}" style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;"><p class="contest-type-tag" style="display: inline-block; text-decoration: none; font-weight: bold;">{{ _(model.contest.RULES[tdoc.rule].TEXT) }}</p></td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;"><span class="custom-status-badge" style="background-color: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2) !important;">{{ _('Ready') }}</span></td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;">
-                  {% if tsdict[tdoc.docId].attend %}
-                    <span class="custom-status-badge" style="background-color: rgba(46, 204, 113, 0.15); color: #2ecc71;">{{ _('Attended') }}</span>
-                  {% else %}
-                    <span class="custom-status-badge" style="background-color: rgba(128, 128, 128, 0.15); color: inherit; opacity: 0.7; font-weight: normal !important;">{{ _('Not Attended') }}</span>
-                  {% endif %}
-                </td>
-                <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; font-weight: bold; color: inherit;">{{ tdoc['attend']|default(0) }}</td>
-              </tr>
-            {% endif %}
-          {%- endfor -%}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- 3. 历史比赛 -->
-    <div class="section contest-panel allow-empty">
-      <div class="section__header">
-        <h1 class="section__title"><span style="display:inline-block; width:8px; height:8px; background:rgba(128,128,128,0.6); border-radius:50%; margin-right:8px; vertical-align:middle;"></span>{{ _('History Contests') if not rule else _('{0} Contests').format(_(model.contest.RULES[rule].TEXT)) }}</h1>
-        <!--<div class="section__tools">
-          <form method="get" name="filter-form">
-            <input type="text" class="inline compact textbox" name="q" value="{{ q }}" placeholder="{{ _('Search contests...') }}">
-            <select class="inline compact select" name="group">
-              <option value=""{% if not group %} selected{% endif %}>{{ _('All') }}</option>
-              {%- for g in groups -%}<option value="{{ g }}"{% if group == g %} selected{% endif %}>{{ g }}</option>{%- endfor -%}
-              {%- if not groups|length -%}<option disabled>{{ _('No group available') }}</option>{%- endif -%}
-            </select>
-            <select class="inline compact select" name="rule">
-              <option value=""{% if not rule %} selected{% endif %}>{{ _('All') }}</option>
-              {%- for k, v in model.contest.RULES -%}
-                {% if not v.hidden %}<option value="{{ k }}"{% if rule == k %} selected{% endif %}>{{ _('All {0} Contests').format(v.TEXT) }}</option>{% endif %}
-              {%- endfor -%}
-            </select>
-            <button type="submit" class="button hasjs--hide">{{ _('Search') }}</button>
-          </form>
-        </div>-->
-      </div>
-      <div class="section__body no-padding">
-        <table class="data-table" style="width: 100%; border-collapse: collapse; table-layout: fixed; background: transparent;">
-          <colgroup>
-            <col style="width: 15%;"><col style="width: 25%;"><col style="width: 12%;"><col style="width: 13%;"><col style="width: 13%;"><col style="width: 14%;"><col style="width: 8%;">
-          </colgroup>
-          <thead>
-            <tr style="background-color: rgba(128, 128, 128, 0.08); border-bottom: 2px solid rgba(128, 128, 128, 0.2);">
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('StartAt') }}</th>
-              <th style="text-align: left; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Contest') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Duration') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Rule') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Rated') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('isEnrolled') }}</th>
-              <th style="text-align: center; padding: 12px 8px; color: inherit; opacity: 0.7; font-weight: 600;">{{ _('Attend') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-          {%- for tdoc in tdocs -%}
-            {% if not model.contest.isOngoing(tdoc, tsdoc) %}
-              {% if not model.contest.isUpcoming(tdoc) %}
-                <tr class="data-row" style="background: transparent;">
-                  <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; color: inherit; opacity: 0.85;">{{ datetimeSpan(tdoc['beginAt'], false, 'YYYY-MM-DD')|safe }}</td>
-                  <td class="col--title" style="width: 26%; text-align: left; vertical-align: middle; padding: 14px 8px; font-size: 14px; font-weight: bold; word-break: break-all;"><a href="{{ url('contest_detail', tid=tdoc.docId) }}" style="text-decoration: none; color: #3498db;">{{ tdoc.title }}</a></td>
-                  <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; color: inherit; opacity: 0.85;">{{ contest.render_duration(tdoc) }} h</td>
-                  <td class="col--rule contest-type--{{ tdoc.rule }}" style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;"><p class="contest-type-tag" style="display: inline-block; text-decoration: none; font-weight: bold;">{{ _(model.contest.RULES[tdoc.rule].TEXT) }}</p></td>
-                  <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;">
-                    {% if tdoc.rated %}<span style="display: inline-block; padding: 4px 14px; background-color: #ff761b; color: #ffffff; font-size: 12px; font-weight: bold; border-radius: 12px; line-height: 1.4; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin: 0 auto;">Rated</span>
-                    {% else %}<span style="display: inline-block; padding: 4px 14px; background-color: rgba(128, 128, 128, 0.15); color: inherit; opacity: 0.7; font-size: 12px; font-weight: normal; border-radius: 12px; line-height: 1.4; margin: 0 auto;">Unrated</span>{% endif %}
-                  </td>
-                  <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px;">
-                    {% if tsdict[tdoc.docId].attend %}
-                      <span class="custom-status-badge" style="background-color: rgba(46, 204, 113, 0.15); color: #2ecc71;">{{ _('Attended') }}</span>
-                    {% else %}
-                      <span class="custom-status-badge" style="background-color: rgba(128, 128, 128, 0.15); color: inherit; opacity: 0.7; font-weight: normal !important;">{{ _('Not Attended') }}</span>
-                    {% endif %}
-                  </td>
-                  <td style="text-align: center; vertical-align: middle; padding: 14px 8px; font-size: 14px; font-weight: bold; color: inherit;">{{ tdoc['attend']|default(0) }}</td>
-                </tr>
-              {% endif %}
-            {% endif %}
-          {%- endfor -%}
-          <tr class="empty-placeholder"><td colspan="7" style="text-align: center; padding: 24px; color: inherit; opacity: 0.4; font-size: 14px;">暂无比赛记录</td></tr>
-          </tbody>
-        </table>
-        {{ paginator.render(page, tpcount, add_qs=qs) }}
-      </div>
-    </div>
-
-  </div>
   {% endif %}
+  </div>
 </div>
 {% endblock %}
