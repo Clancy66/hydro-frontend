@@ -198,9 +198,12 @@ table.data-table thead th {
 table.data-table tbody tr {
     transition: background .15s ease;
 }
-
 table.data-table tbody tr:hover {
     background: #fafcff;
+}
+
+html[data-mantine-color-scheme="dark"] table.data-table tbody tr:hover {
+    background: #656565;
 }
 .record-status--text {
     position: absolute !important;

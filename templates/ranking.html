@@ -94,8 +94,13 @@ table.ranking-table td.col--user {
 }
 
 /* 5. 纯白背景下的优雅悬停高亮交互 */
+
 table.ranking-table tbody tr:hover td {
     background: #f8fafc !important; /* 鼠标经过时整行浮现淡淡的冷灰色 */
+}
+
+html[data-mantine-color-scheme="dark"] table.ranking-table tbody tr:hover td {
+    background: #656565 !important; /* 鼠标经过时整行浮现淡淡的冷灰色 */
 }
 
 /* ==========================================================================
