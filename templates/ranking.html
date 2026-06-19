@@ -122,14 +122,24 @@ table.ranking-table tr.ranking-self-row td {
     vertical-align: middle !important;
     
     /* ⚡ 核心改色：使用现代极简风淡绿作为背景，衬托自己，同时绝不干扰上方表头 */
-    background: #b1c2b6 !important; 
-    background-color: #b1c2b6 !important;
+    background: #cef3d9 !important; 
+    background-color: #cef3d9 !important;
+}
+
+html[data-mantine-color-scheme="dark"] table.ranking-table tr.ranking-self-row td {
+    background: #7f9786 !important; 
+    background-color: #7f9786 !important;
 }
 
 /* 3. 悬停在自己这一行时，保持淡淡的绿意，不被灰色冲刷 */
 table.ranking-table tr.ranking-self-row:hover td {
     background: #dcfce7 !important;
     background-color: #dcfce7 !important;
+}
+
+html[data-mantine-color-scheme="dark"] table.ranking-table tr.ranking-self-row:hover td {
+    background: #8da897 !important;
+    background-color: #8da897 !important;
 }
 
 table.ranking-table th.col--rank,
