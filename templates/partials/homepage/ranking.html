@@ -22,7 +22,6 @@ table.home-ranking-table tbody tr td {
     border-right: none !important;
     border-top: none !important;
     border-left: none !important;
-    vertical-align: middle !important;
     font-size: 14px;
 }
 
@@ -45,12 +44,6 @@ table.home-ranking-table td.col--rank {
     min-width: 60px !important;
     text-align: center !important; /* 序号保持居中 */
     color: #64748b;
-}
-
-table.home-ranking-table th.col--user,
-table.home-ranking-table td.col--user {
-    width: auto !important; /* 用户名作为主列弹性横向自适应延伸，把右侧推过去 */
-    text-align: left !important;
 }
 
 /* ⚡ 核心修复：压缩前一列宽度，并将两列数据硬性全部右对齐，使其流畅贴右 */
@@ -79,7 +72,6 @@ html[data-mantine-color-scheme="dark"]  table.home-ranking-table tbody tr:hover 
 /***** 徽章样式 *********/
 .home-ranking-table td.col--user .user-profile-badge,
 .home-ranking-table td.col--user span:not(.user-profile-link) {
-    display: inline-block !important;
     padding: 4px 12px !important;
     border-radius: 999px !important;
     font-size: 11px !important;
@@ -95,7 +87,7 @@ html[data-mantine-color-scheme="dark"]  table.home-ranking-table tbody tr:hover 
     <div class="section__header">
       <h1 class="section__title">{{ _('Ranking') }}</h1>
     </div>
-    <div class="section__body no-padding" style="overflow: hidden">
+    <div class="section__body no-padding">
       <table class="data-table home-ranking-table">
         <thead>
           <tr>
