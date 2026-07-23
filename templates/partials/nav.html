@@ -12,7 +12,7 @@
       <li class="nav__list-item">
         <a href="/"><img class="nav__logo" src="{{ ctx.setting.get('ui-default.nav_logo_dark') }}"></a>
       </li>
-      {%- for item in overrideNav|default(ui.getNodes('Nav')) -%}{% if item.checker(handler) %}
+      {%- for item in overrideNav|default(ui.getNodes('Nav')) -%}{% if item.name != 'record_main' and item.name != 'domain_dashboard' and item.checker(handler) %}
         {{ nav_item(item) }}
       {% endif %}{%- endfor -%}
     </ol>
