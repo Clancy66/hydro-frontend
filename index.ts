@@ -1,6 +1,7 @@
 import {
     _, db, Context, ObjectId, Handler, PRIV, PERM, ForbiddenError, param, Types, OplogModel,
-    FileExistsError, TrainingModel, NotFoundError,
+    FileExistsError, TrainingModel, NotFoundError, STATUS, DomainModel,
+    UserModel, RecordModel
 } from 'hydrooj';
 
 const collTrainingCategory = db.collection('trainingcategory');
@@ -252,10 +253,110 @@ export async function apply(ctx: Context) {
         }
     });
 
+    ctx.on('handler/after/DomainRank#get', async (handler) => {
+        const query = handler.request.query || {};
+        const isEmptyQuery = Object.keys(query).length === 0;
+        if (!isEmptyQuery) {
+            const type = (query.type as string) || 'this_month';
+            const domainId = handler.args.domainId || 'system';
+
+            const { start, end } = getTimeRange(type);
+
+            const pipeline: any[] = [
+                {
+                    $match: {
+                        domainId: domainId,
+                        status: STATUS.STATUS_ACCEPTED, 
+                        pid: { $exists: true },
+                        _id: {
+                            $gte: ObjectId.createFromTime(Math.floor(start.getTime() / 1000)),
+                            $lte: ObjectId.createFromTime(Math.floor(end.getTime() / 1000)),
+                        }
+                    }
+                },
+                { $group: { _id: { uid: '$uid', pid: '$pid' } } },
+                { $group: { _id: '$_id.uid', acCount: { $sum: 1 } } },
+                { $sort: { acCount: -1 } },
+                { $limit: 50 } // 👈 从 10 放大到 50
+            ];
+
+            const rawRank = await RecordModel.coll.aggregate(pipeline).toArray();
+
+            const dudocs = await DomainModel.getMultiUserInDomain(domainId, { 
+                uid: { $in: rawRank.map((raw) => raw._id) }, 
+                join: true 
+            }).toArray();
+
+            const udict = await UserModel.getList(domainId, dudocs.map((dudoc) => dudoc.uid));
+
+            const udocMap = new Map<number, any>();
+            for (const dudoc of dudocs) {
+                const udoc = udict[dudoc.uid];
+                if (udoc) {
+                    udocMap.set(dudoc.uid, udoc);
+                }
+            }
+
+            // 2. 过滤管理员并进行无损原地染色
+            const filteredRankList = rawRank
+                .map((rankItem) => {
+                    const uid = rankItem._id;
+                    const udoc = udocMap.get(uid);
+
+                    if (!udoc) return null;
+
+                    // 剔除管理员用户
+                    if (udoc.hasPriv(PRIV.PRIV_SET_PERM)) {
+                        return null; 
+                    }
+
+                    udoc.acCount = rankItem.acCount;
+                    return udoc;
+                })
+                .filter(Boolean); // 此时数组里全是干净的普通用户
+
+            // 3. 核心修正：过滤完后，精准裁切出前 10 名普通用户
+            const finalTop10 = filteredRankList.slice(0, 10);
+
+            // 4. 将完美的 Top 10 数据注入给前端
+            Object.assign(handler.response.body, {
+                periodRankList: finalTop10,  // 👈 确保前端雷打不动拿到 10 个有效用户
+                query: query,
+                period: type,
+            });
+        }
+    });
+
+    /**
+     * 辅助方法：移动到事件监听器外面定义，保持代码整洁
+     */
+    function getTimeRange(type: string): { start: Date; end: Date } {
+        const now = new Date();
+        let start: Date;
+        let end: Date;
+
+        switch (type) {
+            case 'last_month':
+                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                end = new Date(now.getFullYear(), now.getMonth(), 0, 22, 0, 0, 0);
+                break;
+            case 'this_month':
+            default:
+                start = new Date(now.getFullYear(), now.getMonth(), 1);
+                end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 22, 0, 0, 0);
+                break;
+        }
+        return { start, end };
+    }
+
     ctx.Route('training_category', '/category/:category', TrainingCategoryHandler);
     ctx.Route('training_category_edit', '/category', TrainingCategoryEditHandler);
 
     ctx.i18n.load('zh', {
+        'Top 10 AC Problems': '刷题榜前 10',
+        'This Month': '本月',
+        'Last Week': '上周',
+        'Last Month': '上月',
         'Live Contests': '正在进行的比赛',
         'Upcoming Contests': '即将开始的比赛',
         'History Contests': '历史比赛',
