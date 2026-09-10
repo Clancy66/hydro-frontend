@@ -336,6 +336,10 @@ export async function apply(ctx: Context) {
         let end: Date;
 
         switch (type) {
+            // case 'test':
+            //     start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+            //     end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 20, 22, 0, 0);
+            //     break;
             case 'last_month':
                 start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
                 end = new Date(now.getFullYear(), now.getMonth(), 0, 22, 0, 0, 0);
