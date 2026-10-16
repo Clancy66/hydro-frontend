@@ -180,20 +180,6 @@ table.ranking-table td.col--ac-count {
     <div class="section">
       <div class="section__header">
         <h1 class="section__title">{{ _('All Users') }}</h1>
-        <div class="section__tools" style="display:inline-flex !important; align-items: center; gap: 10px;">
-          <h3 style="margin: 0; line-height: 1.6rem;">{{ _('Top 10 AC Problems') }}</h3>
-          <form method="get" class="filter-form">
-            <button type="submit" name="type" value="this_month" class="compact button {{ 'primary' if query.type == 'this_month' }}">
-              {{ _('This Month') }}
-            </button>
-            <button type="submit" name="type" value="last_month" class="compact button {{ 'primary' if query.type == 'last_month' }}">
-              {{ _('Last Month') }}
-            </button>
-            <!--<button type="submit" name="type" value="test" class="compact button {{ 'primary' if query.type == 'test' }}">
-              测试
-            </button>-->
-          </form>
-        </div>
       </div>
       <div class="section__body no-padding">
         <div data-fragment-id="ranking">
